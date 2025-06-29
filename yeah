@@ -1,0 +1,3107 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService") 
+local UserInputService = game:GetService("UserInputService") 
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local SoundService = game:GetService("SoundService")
+
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+local camera = Workspace.CurrentCamera
+
+-- Theme Storage for Settings
+local Theme = {
+    AccentColor = Color3.fromRGB(138, 43, 226),
+    BackgroundColor = Color3.fromRGB(20, 20, 20),
+    SurfaceColor = Color3.fromRGB(24, 24, 24),
+    BorderColor = Color3.fromRGB(56, 56, 56),
+    PrimaryText = Color3.fromRGB(255, 255, 255),
+    SecondaryText = Color3.fromRGB(255, 255, 255),
+    ButtonColor = Color3.fromRGB(30, 30, 30),
+    Font = Enum.Font.GothamSemibold,
+    
+    -- Customization options
+    GlowColor = Color3.fromRGB(138, 43, 226),
+    GlowIntensity = 0.5,
+    NotificationColor = Color3.fromRGB(138, 43, 226),
+    WatermarkColor = Color3.fromRGB(138, 43, 226),
+    SliderFillColor = Color3.fromRGB(138, 43, 226),
+    ToggleActiveColor = Color3.fromRGB(138, 43, 226),
+    DropdownColor = Color3.fromRGB(30, 30, 30),
+    ColorPickerBorder = Color3.fromRGB(56, 56, 56),
+    CloseButtonColor = Color3.fromRGB(255, 50, 50)
+}
+
+-- Settings
+local Settings = {
+    ShowWatermark = false,
+    ShowNotifications = false,
+    GlowEnabled = true,
+    UIColorerOpen = false,
+    WatermarkType = "Normal",
+    NotificationType = "Normal",
+    
+    -- Combat Settings
+    Combat = {
+        Enable = false,
+        Hotkey = nil,
+        Checks = {},
+        UseSmoothness = false,
+        UsePrediction = false,
+        UseCustomOffset = false,
+        HitPart = "Head",
+        AimType = "Mouse",
+        XSmoothness = 50,
+        YSmoothness = 50,
+        XPrediction = 25,
+        YPrediction = 25,
+        XOffset = 0,
+        YOffset = 0,
+        
+        -- FOV Settings
+        UseFOV = false,
+        DrawFOV = false,
+        FillFOV = false,
+        FOVSize = 125,
+        FOVOutlineColor = Color3.fromRGB(255, 255, 255),
+        FOVFillColor = Color3.fromRGB(255, 255, 255),
+        FOVFillTransparency = 50,
+        FOVOutlineTransparency = 0,
+        
+        -- Silent Aim
+        SilentAim = {
+            Enable = false,
+            Hotkey = nil,
+            HitParts = {"Head"},
+            HitChance = 100,
+            WallCheck = false,
+            TeamCheck = false,
+            UseFOV = false,
+            DrawFOV = false,
+            FillFOV = false,
+            FOVSize = 125,
+            FOVOutlineColor = Color3.fromRGB(255, 255, 255),
+            FOVFillColor = Color3.fromRGB(255, 255, 255),
+            FOVFillTransparency = 50,
+            FOVOutlineTransparency = 0
+        },
+        
+        -- Orbit Lock
+        OrbitLock = {
+            Enable = false,
+            Hotkey = nil,
+            HitPart = "Head",
+            LookAtTarget = false,
+            Spectate = false,
+            XOffset = 0,
+            YOffset = 0,
+            ResetOffset = false
+        },
+        
+        -- Fun Features
+        HitNotification = false,
+        HitSound = "None",
+        TargetTracer = false,
+        TargetTracerColor = Color3.fromRGB(255, 0, 0),
+        TargetHeadDot = false,
+        TargetHeadDotColor = Color3.fromRGB(255, 0, 0),
+        TargetInfoBox = false,
+        TargetInfoBoxColor = Color3.fromRGB(255, 255, 255),
+        TargetGlowChams = false,
+        TargetGlowChamsColor = Color3.fromRGB(255, 0, 0)
+    },
+    
+    -- Visuals Settings
+    Visuals = {
+        ESP = {
+            Enable = false,
+            BoxESP = false,
+            BoxESPColor = Color3.fromRGB(255, 255, 255),
+            BoxType = "Normal",
+            BoxGlow = false,
+            BoxGlowColor = Color3.fromRGB(255, 255, 255),
+            NameESP = false,
+            NameESPColor = Color3.fromRGB(255, 255, 255),
+            NameOutline = false,
+            NameGlow = false,
+            NameGlowColor = Color3.fromRGB(255, 255, 255),
+            HealthBarESP = false,
+            HealthBarBGColor = Color3.fromRGB(50, 50, 50),
+            HealthBarColor = Color3.fromRGB(0, 255, 0),
+            HealthBarOutline = false,
+            HealthBarGlow = false,
+            HealthBarGlowColor = Color3.fromRGB(0, 255, 0),
+            ToolESP = false,
+            ToolESPColor = Color3.fromRGB(255, 255, 0),
+            ToolOutline = false,
+            ToolGlow = false,
+            ToolGlowColor = Color3.fromRGB(255, 255, 0),
+            DistanceESP = false,
+            DistanceESPColor = Color3.fromRGB(255, 255, 255),
+            DistanceOutline = false,
+            DistanceGlow = false,
+            DistanceGlowColor = Color3.fromRGB(255, 255, 255),
+            ChamsESP = false,
+            ChamsESPColor = Color3.fromRGB(255, 0, 0),
+            ChamsGlow = false,
+            ChamsGlowColor = Color3.fromRGB(255, 0, 0),
+            SkeletonESP = false,
+            SkeletonESPColor = Color3.fromRGB(255, 255, 255),
+            SkeletonGlow = false,
+            SkeletonGlowColor = Color3.fromRGB(255, 255, 255),
+            GlowIntensity = 50,
+            Distance = 500,
+            HealthNumber = false,
+            HealthNumberColor = Color3.fromRGB(255, 255, 255)
+        },
+        
+        SelfESP = {
+            Enable = false,
+            BoxESP = false,
+            BoxESPColor = Color3.fromRGB(255, 255, 255),
+            BoxType = "Normal",
+            BoxGlow = false,
+            BoxGlowColor = Color3.fromRGB(255, 255, 255),
+            NameESP = false,
+            NameESPColor = Color3.fromRGB(255, 255, 255),
+            NameOutline = false,
+            NameGlow = false,
+            NameGlowColor = Color3.fromRGB(255, 255, 255),
+            HealthBarESP = false,
+            HealthBarBGColor = Color3.fromRGB(50, 50, 50),
+            HealthBarColor = Color3.fromRGB(0, 255, 0),
+            HealthBarOutline = false,
+            HealthBarGlow = false,
+            HealthBarGlowColor = Color3.fromRGB(0, 255, 0),
+            ToolESP = false,
+            ToolESPColor = Color3.fromRGB(255, 255, 0),
+            ToolOutline = false,
+            ToolGlow = false,
+            ToolGlowColor = Color3.fromRGB(255, 255, 0),
+            DistanceESP = false,
+            DistanceESPColor = Color3.fromRGB(255, 255, 255),
+            DistanceOutline = false,
+            DistanceGlow = false,
+            DistanceGlowColor = Color3.fromRGB(255, 255, 255),
+            ChamsESP = false,
+            ChamsESPColor = Color3.fromRGB(255, 0, 0),
+            ChamsGlow = false,
+            ChamsGlowColor = Color3.fromRGB(255, 0, 0),
+            GlowIntensity = 50,
+            Distance = 500,
+            HealthNumber = false,
+            HealthNumberColor = Color3.fromRGB(255, 255, 255)
+        },
+        
+        World = {
+            AmbienceColor = false,
+            AmbienceColorValue = Color3.fromRGB(255, 255, 255),
+            AmbienceGlow = false,
+            AmbienceGlowColor = Color3.fromRGB(255, 255, 255),
+            BuildingColor = false,
+            BuildingColorValue = Color3.fromRGB(255, 255, 255),
+            BuildingGlow = false,
+            BuildingGlowColor = Color3.fromRGB(255, 255, 255),
+            FogColor = false,
+            FogStart = 0,
+            FogEnd = 100,
+            FogColorValue = Color3.fromRGB(255, 255, 255),
+            FogGlow = false,
+            FogGlowColor = Color3.fromRGB(255, 255, 255),
+            ScreenColor = false,
+            ScreenColorValue = Color3.fromRGB(255, 255, 255)
+        },
+        
+        Effects = {
+            SnowFlakes = false,
+            HelloKitty = false,
+            SelfBulletTracer = false,
+            SelfBulletTracerColor = Color3.fromRGB(255, 255, 0),
+            EnemyBulletTracer = false,
+            EnemyBulletTracerColor = Color3.fromRGB(255, 0, 0),
+            BulletStartSize = 1,
+            BulletEndSize = 1,
+            BulletDuration = 1,
+            HitSkeleton = false,
+            HitSkeletonColor = Color3.fromRGB(255, 0, 0),
+            HitSkeletonGlow = false,
+            HitSkeletonGlowColor = Color3.fromRGB(255, 0, 0),
+            Crosshair = false,
+            CrosshairColor = Color3.fromRGB(255, 255, 255),
+            CrosshairOutline = false,
+            CrosshairOutlineColor = Color3.fromRGB(0, 0, 0),
+            CrosshairGap = 5,
+            CrosshairSize = 10,
+            CrosshairSpin = false,
+            CrosshairSpinSpeed = 5
+        }
+    },
+    
+    -- Misc Settings
+    Misc = {
+        Fly = {
+            Enable = false,
+            Hotkey = nil,
+            Speed = 16,
+            Type = "Normal"
+        },
+        
+        Speed = {
+            Enable = false,
+            Hotkey = nil,
+            Amount = 16,
+            Type = "Legit",
+            LegitSlideAmount = 10
+        },
+        
+        AntiAim = {
+            -- Add anti-aim settings here
+            Enable = false,
+            Hotkey = nil,
+            Pitch = "Normal", -- "Up", "Down", "Zero", "Jitter"
+            Yaw = "Normal",   -- "Left", "Right", "Back", "Spin", "Jitter"
+            SpinSpeed = 10,
+            JitterAmount = 5
+        },
+        
+        Players = {
+            Spectate = nil,
+            Teleport = nil,
+            Fling = nil,
+            TeamCheck = false,
+            OnlyEnemies = false
+        },
+
+        Fun = {
+            InfiniteJump = false,
+            NoClip = false,
+            NoFallDamage = false,
+            FastPlace = false,
+            ClickTeleport = false,
+            ClickTeleportHotkey = Enum.KeyCode.T,
+            TimeOfDay = "Day", -- "Day", "Night", "Custom"
+            CustomTime = 14, -- 0-24
+            FOVChanger = false,
+            FOVValue = 70
+        }
+    },
+    
+    -- Settings
+    Settings = {
+        UI = {
+            Font = Enum.Font.GothamSemibold,
+            BackgroundTransparency = 0,
+            ShowWatermark = false,
+            ShowNotifications = false,
+            OpenHotkey = Enum.KeyCode.RightShift,
+            SaveConfigOnExit = false,
+            LoadConfigOnJoin = false
+        },
+        
+        Config = {
+            Current = "Default",
+            List = {"Default"}
+        }
+    }
+}
+
+-- ESP Storage
+local ESPObjects = {}
+local FOVCircle = nil
+local SilentFOVCircle = nil
+local Crosshair = nil
+local SnowFlakes = {}
+local HelloKitties = {}
+
+-- Current target
+local currentTarget = nil
+local lockedTarget = nil
+local orbitAngle = 0
+
+-- Utility functions
+local function create(instance, properties)
+    local ins = Instance.new(instance)
+    for property, value in pairs(properties) do
+        ins[property] = value
+    end
+    return ins
+end
+
+local function round(n, d)
+    return tonumber(string.format("%."..(d or 0).."f", n))
+end
+
+local function toHex(color)
+    return string.format("#%02X%02X%02X", color.R * 255, color.G * 255, color.B * 255)
+end
+
+local function fromHex(hex)
+    local r, g, b = string.match(hex, "^#?(%w%w)(%w%w)(%w%w)$")
+    if r and g and b then
+        return Color3.fromRGB(tonumber(r, 16), tonumber(g, 16), tonumber(b, 16))
+    end
+    return Color3.fromRGB(255, 255, 255)
+end
+
+local function HSVtoRGB(h, s, v)
+    local r, g, b
+    local i = math.floor(h * 6)
+    local f = h * 6 - i
+    local p = v * (1 - s)
+    local q = v * (1 - f * s)
+    local t = v * (1 - (1 - f) * s)
+    
+    i = i % 6
+    
+    if i == 0 then
+        r, g, b = v, t, p
+    elseif i == 1 then
+        r, g, b = q, v, p
+    elseif i == 2 then
+        r, g, b = p, v, t
+    elseif i == 3 then
+        r, g, b = p, q, v
+    elseif i == 4 then
+        r, g, b = t, p, v
+    elseif i == 5 then
+        r, g, b = v, p, q
+    end
+    
+    return Color3.fromRGB(r * 255, g * 255, b * 255)
+end
+
+local function RGBtoHSV(color)
+    local r, g, b = color.R, color.G, color.B
+    local max = math.max(r, g, b)
+    local min = math.min(r, g, b)
+    local h, s, v
+    
+    v = max
+    local d = max - min
+    s = max == 0 and 0 or d / max
+    
+    if max == min then
+        h = 0
+    else
+        if max == r then
+            h = (g - b) / d + (g < b and 6 or 0)
+        elseif max == g then
+            h = (b - r) / d + 2
+        elseif max == b then
+            h = (r - g) / d + 4
+        end
+        h = h / 6
+    end
+    
+    return h, s, v
+end
+
+-- Drag functionality
+local function makeDraggable(frame, dragHandle)
+    local dragging = false
+    local dragInput, dragStart, startPos
+    
+    local function update(input)
+        local delta = input.Position - dragStart
+        frame:TweenPosition(
+            UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y),
+            Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.1, true
+        )
+    end
+    
+    dragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    dragHandle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
+end
+
+-- Create main ScreenGui
+local screenGui = create("ScreenGui", {
+    Name = "EnhancedPupyywareGUI",
+    DisplayOrder = 9999,
+    ResetOnSpawn = false,
+    ZIndexBehavior = "Global",
+    Parent = CoreGui
+})
+
+local glowEffect = create("ImageLabel", {
+    Name = "GlowEffect",
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Size = UDim2.new(0, 900, 0, 750),
+    ZIndex = -1,
+    Image = "rbxassetid://5028857084",
+    ImageColor3 = Theme.GlowColor,
+    ImageTransparency = 1 - Theme.GlowIntensity,
+    Visible = Settings.GlowEnabled,
+    Parent = screenGui
+})
+
+-- Main outline frame
+local outline = create("Frame", {
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Theme.AccentColor,
+    BorderColor3 = Color3.fromRGB(12, 12, 12),
+    BorderSizePixel = 1,
+    Size = UDim2.new(0, 525, 0, 900),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    ZIndex = 1,
+    Parent = screenGui
+})
+
+-- Second outline (black border)
+local outline2 = create("Frame", {
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+    BorderColor3 = Color3.fromRGB(12, 12, 12),
+    BorderSizePixel = 1,
+    Size = UDim2.new(1, -4, 1, -4),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Parent = outline
+})
+
+-- Inner frame
+local indent = create("Frame", {
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Theme.BackgroundColor,
+    BorderColor3 = Theme.BorderColor,
+    BorderMode = "Inset",
+    BorderSizePixel = 1,
+    Size = UDim2.new(1, 0, 1, 0),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Parent = outline2
+})
+
+-- Main content area
+local main = create("Frame", {
+    AnchorPoint = Vector2.new(0.5, 1),
+    BackgroundColor3 = Theme.BackgroundColor,
+    BorderColor3 = Theme.BorderColor,
+    BorderMode = "Inset",
+    BorderSizePixel = 1,
+    Size = UDim2.new(1, -10, 1, -25),
+    Position = UDim2.new(0.5, 0, 1, -5),
+    Parent = outline2
+})
+
+-- Title bar
+local titleBar = create("Frame", {
+    BackgroundTransparency = 1,
+    Size = UDim2.new(1, 0, 0, 20),
+    Position = UDim2.new(0, 0, 0, 0),
+    Parent = outline2
+})
+
+-- Title text
+local titleText = create("TextLabel", {
+    AnchorPoint = Vector2.new(0.5, 0),
+    BackgroundTransparency = 1,
+    Size = UDim2.new(1, -50, 1, 0),
+    Position = UDim2.new(0.5, -25, 0, 0),
+    Font = Theme.Font,
+    Text = "example.lol | gg/yeah",
+    TextColor3 = Theme.PrimaryText,
+    TextXAlignment = Enum.TextXAlignment.Center,
+    TextSize = 12,
+    TextStrokeTransparency = 0,
+    Parent = titleBar
+})
+
+-- CLOSE BUTTON (Top Right)
+local closeButton = create("Frame", {
+    AnchorPoint = Vector2.new(1, 0),
+    BackgroundColor3 = Theme.CloseButtonColor,
+    BorderColor3 = Color3.fromRGB(12, 12, 12),
+    BorderMode = "Inset",
+    BorderSizePixel = 1,
+    Size = UDim2.new(0, 20, 0, 20),
+    Position = UDim2.new(1, 0, 0, 0),
+    Parent = titleBar
+})
+
+local closeButtonOutline = create("Frame", {
+    BackgroundColor3 = Theme.CloseButtonColor,
+    BorderColor3 = Theme.BorderColor,
+    BorderMode = "Inset",
+    BorderSizePixel = 1,
+    Size = UDim2.new(1, 0, 1, 0),
+    Parent = closeButton
+})
+
+local closeButtonText = create("TextLabel", {
+    BackgroundTransparency = 1,
+    Size = UDim2.new(1, 0, 1, 0),
+    Font = Theme.Font,
+    Text = "X",
+    TextColor3 = Theme.PrimaryText,
+    TextSize = 12,
+    TextStrokeTransparency = 0,
+    Parent = closeButtonOutline
+})
+
+local closeButtonClick = create("TextButton", {
+    BackgroundTransparency = 1,
+    Size = UDim2.new(1, 0, 1, 0),
+    Text = "",
+    Parent = closeButton
+})
+
+closeButtonClick.MouseButton1Down:Connect(function()
+    screenGui.Enabled = false
+end)
+
+-- Main content outline
+local outline3 = create("Frame", {
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Theme.SurfaceColor,
+    BorderColor3 = Color3.fromRGB(12, 12, 12),
+    BorderMode = "Inset",
+    BorderSizePixel = 1,
+    Size = UDim2.new(1, 0, 1, 0),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Parent = main
+})
+
+-- Content holder
+local holder = create("Frame", {
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    Size = UDim2.new(1, -6, 1, -6),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Parent = main
+})
+
+-- Tab system
+local tabs = create("Frame", {
+    AnchorPoint = Vector2.new(0.5, 1),
+    BackgroundColor3 = Theme.BackgroundColor,
+    BorderColor3 = Color3.fromRGB(12, 12, 12),
+    BorderMode = "Inset",
+    BorderSizePixel = 1,
+    Size = UDim2.new(1, 0, 1, -20),
+    Position = UDim2.new(0.5, 0, 1, 0),
+    Parent = holder
+})
+
+-- Tab buttons container
+local tabsButtons = create("Frame", {
+    AnchorPoint = Vector2.new(0.5, 0),
+    BackgroundTransparency = 1,
+    Size = UDim2.new(1, 0, 0, 21),
+    Position = UDim2.new(0.5, 0, 0, 0),
+    ZIndex = 2,
+    Parent = holder
+})
+
+-- Tab content area
+local tabContent = create("Frame", {
+    BackgroundColor3 = Theme.BackgroundColor,
+    BorderColor3 = Theme.BorderColor,
+    BorderMode = "Inset",
+    BorderSizePixel = 1,
+    Size = UDim2.new(1, 0, 1, 0),
+    Position = UDim2.new(0, 0, 0, 0),
+    Parent = tabs
+})
+
+-- Tab layout
+create("UIListLayout", {
+    FillDirection = Enum.FillDirection.Horizontal,
+    Padding = UDim.new(0, 4),
+    Parent = tabsButtons
+})
+
+-- Create tabs
+local tabNames = {"Combat", "Visuals", "Misc", "Settings"}
+local tabPages = {}
+local activeTab = nil
+
+for i, tabName in ipairs(tabNames) do
+    -- Tab button
+    local tabButton = create("Frame", {
+        BackgroundColor3 = Theme.BackgroundColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(0, 120, 1, 0),
+        Parent = tabsButtons
+    })
+    
+    local tabOutline = create("Frame", {
+        BackgroundColor3 = Theme.SurfaceColor,
+        BorderColor3 = Theme.BorderColor,
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        Parent = tabButton
+    })
+    
+    local tabClickButton = create("TextButton", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        Text = "",
+        Parent = tabButton
+    })
+    
+    local tabLabel = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 20),
+        Position = UDim2.new(0, 0, 0, 0),
+        Font = Theme.Font,
+        Text = tabName,
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 12,
+        TextStrokeTransparency = 0,
+        Parent = tabOutline
+    })
+    
+    -- Tab indicator line
+    local tabLine = create("Frame", {
+        BackgroundColor3 = Theme.SurfaceColor,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 0, 2),
+        Position = UDim2.new(0, 0, 1, 0),
+        ZIndex = 2,
+        Parent = tabOutline
+    })
+    
+    -- Tab page content with proper scrolling
+    local tabPage = create("ScrollingFrame", {
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, -10, 1, -10),
+        Position = UDim2.new(0, 5, 0, 5),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        ScrollBarImageTransparency = 0.3,
+        ScrollBarImageColor3 = Theme.AccentColor,
+        ScrollBarThickness = 8,
+        ScrollingDirection = Enum.ScrollingDirection.Y,
+        Visible = false,
+        ClipsDescendants = true,
+        Parent = tabContent
+    })
+    
+    tabPages[i] = {
+        button = tabButton,
+        outline = tabOutline,
+        label = tabLabel,
+        line = tabLine,
+        page = tabPage,
+        name = tabName
+    }
+    
+    -- Tab click functionality
+    tabClickButton.MouseButton1Down:Connect(function()
+        -- Hide all tabs
+        for _, tab in pairs(tabPages) do
+            tab.page.Visible = false
+            tab.outline.BackgroundColor3 = Theme.SurfaceColor
+            tab.line.Size = UDim2.new(1, 0, 0, 2)
+            tab.line.BackgroundColor3 = Theme.SurfaceColor
+        end
+        
+        -- Show selected tab
+        tabPages[i].page.Visible = true
+        tabPages[i].outline.BackgroundColor3 = Theme.BackgroundColor
+        tabPages[i].line.Size = UDim2.new(1, 0, 0, 3)
+        tabPages[i].line.BackgroundColor3 = Theme.AccentColor
+        activeTab = tabPages[i]
+    end)
+    
+    -- Set first tab as active
+    if i == 1 then
+        tabPages[i].page.Visible = true
+        tabPages[i].outline.BackgroundColor3 = Theme.BackgroundColor
+        tabPages[i].line.Size = UDim2.new(1, 0, 0, 3)
+        tabPages[i].line.BackgroundColor3 = Theme.AccentColor
+        activeTab = tabPages[i]
+    end
+end
+
+-- SECTION CREATION with better scrolling
+local function createSection(parent, name, position, size)
+    local sectionHolder = create("Frame", {
+        BackgroundColor3 = Theme.SurfaceColor,
+        BorderColor3 = Theme.BorderColor,
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = size or UDim2.new(0, 400, 0, 300),
+        Position = position or UDim2.new(0, 0, 0, 0),
+        Parent = parent
+    })
+    
+    local sectionOutline = create("Frame", {
+        BackgroundColor3 = Theme.SurfaceColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Parent = sectionHolder
+    })
+    
+    local accentLine = create("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0),
+        BackgroundColor3 = Theme.AccentColor,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, -2, 0, 1),
+        Position = UDim2.new(0.5, 0, 0, 0),
+        Parent = sectionOutline
+    })
+    
+    local sectionTitle = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -5, 0, 20),
+        Position = UDim2.new(0, 5, 0, 2),
+        Font = Theme.Font,
+        Text = name,
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 12,
+        TextStrokeTransparency = 0,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = sectionOutline
+    })
+    
+    -- Better scrolling frame
+    local sectionContent = create("ScrollingFrame", {
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, -10, 1, -30),
+        Position = UDim2.new(0, 5, 0, 25),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        ScrollBarImageTransparency = 0.3,
+        ScrollBarImageColor3 = Theme.AccentColor,
+        ScrollBarThickness = 6,
+        ScrollingDirection = Enum.ScrollingDirection.Y,
+        ClipsDescendants = true,
+        Parent = sectionOutline
+    })
+    
+    create("UIListLayout", {
+        FillDirection = Enum.FillDirection.Vertical,
+        Padding = UDim.new(0, 3),
+        Parent = sectionContent
+    })
+    
+    return sectionContent
+end
+
+-- SUB TAB SYSTEM
+local function createSubTabs(parent, subTabNames)
+    local subTabContainer = create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 30),
+        Position = UDim2.new(0, 0, 0, 0),
+        Parent = parent
+    })
+    
+    create("UIListLayout", {
+        FillDirection = Enum.FillDirection.Horizontal,
+        Padding = UDim.new(0, 5),
+        Parent = subTabContainer
+    })
+    
+    local subTabPages = {}
+    local activeSubTab = nil
+    
+    for i, subTabName in ipairs(subTabNames) do
+        local subTabButton = create("Frame", {
+            BackgroundColor3 = Theme.ButtonColor,
+            BorderColor3 = Color3.fromRGB(12, 12, 12),
+            BorderMode = "Inset",
+            BorderSizePixel = 1,
+            Size = UDim2.new(0, 150, 0, 30),
+            Parent = subTabContainer
+        })
+        
+        local subTabOutline = create("Frame", {
+            BackgroundColor3 = Theme.ButtonColor,
+            BorderColor3 = Theme.BorderColor,
+            BorderMode = "Inset",
+            BorderSizePixel = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Parent = subTabButton
+        })
+        
+        local subTabLabel = create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Font = Theme.Font,
+            Text = subTabName,
+            TextColor3 = Theme.PrimaryText,
+            TextSize = 12,
+            TextStrokeTransparency = 0,
+            Parent = subTabOutline
+        })
+        
+        local subTabClick = create("TextButton", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Text = "",
+            Parent = subTabButton
+        })
+        
+        -- Sub-tab page with proper scrolling
+        local subTabPage = create("ScrollingFrame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, -35),
+            Position = UDim2.new(0, 0, 0, 35),
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            ScrollBarImageTransparency = 0.3,
+            ScrollBarImageColor3 = Theme.AccentColor,
+            ScrollBarThickness = 8,
+            ScrollingDirection = Enum.ScrollingDirection.Y,
+            Visible = false,
+            ClipsDescendants = true,
+            Parent = parent
+        })
+        
+        subTabPages[i] = {
+            button = subTabButton,
+            outline = subTabOutline,
+            label = subTabLabel,
+            page = subTabPage,
+            name = subTabName
+        }
+        
+        subTabClick.MouseButton1Down:Connect(function()
+            for _, subTab in pairs(subTabPages) do
+                subTab.page.Visible = false
+                subTab.outline.BackgroundColor3 = Theme.ButtonColor
+            end
+            
+            subTabPages[i].page.Visible = true
+            subTabPages[i].outline.BackgroundColor3 = Theme.AccentColor
+            activeSubTab = subTabPages[i]
+        end)
+        
+        if i == 1 then
+            subTabPages[i].page.Visible = true
+            subTabPages[i].outline.BackgroundColor3 = Theme.AccentColor
+            activeSubTab = subTabPages[i]
+        end
+    end
+    
+    return subTabPages
+end
+
+-- Component creation functions
+local function createToggle(parent, name, defaultValue, callback)
+    local toggleHolder = create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 22),
+        Parent = parent
+    })
+    
+    local toggleBox = create("Frame", {
+        BackgroundColor3 = Theme.SurfaceColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(0, 18, 0, 18),
+        Position = UDim2.new(0, 0, 0, 2),
+        Parent = toggleHolder
+    })
+    
+    local toggleColor = create("Frame", {
+        BackgroundColor3 = defaultValue and Theme.ToggleActiveColor or Theme.BackgroundColor,
+        BorderColor3 = Theme.BorderColor,
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Parent = toggleBox
+    })
+    
+    create("UIGradient", {
+        Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(199, 191, 204)), 
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))
+        },
+        Rotation = 90,
+        Parent = toggleColor
+    })
+    
+    local toggleButton = create("TextButton", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Text = "",
+        Parent = toggleHolder
+    })
+    
+    local toggleLabel = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -25, 1, 0),
+        Position = UDim2.new(0, 25, 0, 0),
+        Font = Theme.Font,
+        Text = name,
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 11,
+        TextStrokeTransparency = 0,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = toggleHolder
+    })
+    
+    local isToggled = defaultValue
+    
+    toggleButton.MouseButton1Down:Connect(function()
+        isToggled = not isToggled
+        toggleColor.BackgroundColor3 = isToggled and Theme.ToggleActiveColor or Theme.BackgroundColor
+        if callback then
+            callback(isToggled)
+        end
+    end)
+    
+    return toggleHolder, function() return isToggled end, function(value) 
+        isToggled = value
+        toggleColor.BackgroundColor3 = isToggled and Theme.ToggleActiveColor or Theme.BackgroundColor
+    end
+end
+
+local function createToggleWithHotkey(parent, name, defaultValue, callback)
+    local toggleHolder = create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 22),
+        Parent = parent
+    })
+    
+    local toggleBox = create("Frame", {
+        BackgroundColor3 = Theme.SurfaceColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(0, 18, 0, 18),
+        Position = UDim2.new(0, 0, 0, 2),
+        Parent = toggleHolder
+    })
+    
+    local toggleColor = create("Frame", {
+        BackgroundColor3 = defaultValue and Theme.ToggleActiveColor or Theme.BackgroundColor,
+        BorderColor3 = Theme.BorderColor,
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Parent = toggleBox
+    })
+    
+    create("UIGradient", {
+        Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(199, 191, 204)), 
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))
+        },
+        Rotation = 90,
+        Parent = toggleColor
+    })
+    
+    local toggleButton = create("TextButton", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 18, 1, 0),
+        Text = "",
+        Parent = toggleHolder
+    })
+    
+    local toggleLabel = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -130, 1, 0),
+        Position = UDim2.new(0, 25, 0, 0),
+        Font = Theme.Font,
+        Text = name,
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 11,
+        TextStrokeTransparency = 0,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = toggleHolder
+    })
+    
+    -- Hotkey selector
+    local hotkeyButton = create("Frame", {
+        BackgroundColor3 = Theme.ButtonColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(0, 90, 0, 18),
+        Position = UDim2.new(1, -90, 0, 2),
+        Parent = toggleHolder
+    })
+    
+    local hotkeyLabel = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Font = Theme.Font,
+        Text = "None",
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 10,
+        TextStrokeTransparency = 0,
+        Parent = hotkeyButton
+    })
+    
+    local hotkeyClick = create("TextButton", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Text = "",
+        Parent = hotkeyButton
+    })
+    
+    local isToggled = defaultValue
+    local currentHotkey = nil
+    local waitingForKey = false
+    
+    -- Function to update the toggle state
+    local function updateToggle(value)
+        isToggled = value
+        toggleColor.BackgroundColor3 = isToggled and Theme.ToggleActiveColor or Theme.BackgroundColor
+        if callback then
+            callback(isToggled, currentHotkey)
+        end
+    end
+
+    -- Initial state update
+    updateToggle(defaultValue)
+
+    toggleButton.MouseButton1Down:Connect(function()
+        updateToggle(not isToggled)
+    end)
+
+    hotkeyClick.MouseButton1Down:Connect(function()
+        if not waitingForKey then
+            hotkeyLabel.Text = "Press Key..."
+            waitingForKey = true
+            local connection = UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+                if not gameProcessedEvent and input.UserInputType == Enum.UserInputType.Keyboard then
+                    currentHotkey = input.KeyCode
+                    hotkeyLabel.Text = currentHotkey.Name
+                    waitingForKey = false
+                    connection:Disconnect()
+                    if callback then
+                        callback(isToggled, currentHotkey)
+                    end
+                elseif not gameProcessedEvent and input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    -- Allow click to cancel hotkey assignment
+                    hotkeyLabel.Text = currentHotkey and currentHotkey.Name or "None"
+                    waitingForKey = false
+                    connection:Disconnect()
+                end
+            end)
+        end
+    end)
+
+    -- Return the holder, a function to get the current state, and a function to set the state and hotkey
+    return toggleHolder, 
+           function() return isToggled, currentHotkey end, 
+           function(value, hotkey)
+               updateToggle(value)
+               currentHotkey = hotkey
+               hotkeyLabel.Text = hotkey and hotkey.Name or "None"
+           end
+end
+
+local function createSlider(parent, name, min, max, defaultValue, step, callback)
+    local sliderHolder = create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 40),
+        Parent = parent
+    })
+
+    local sliderLabel = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -60, 0, 20),
+        Position = UDim2.new(0, 0, 0, 0),
+        Font = Theme.Font,
+        Text = name .. ": " .. tostring(defaultValue),
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 11,
+        TextStrokeTransparency = 0,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = sliderHolder
+    })
+
+    local sliderValueLabel = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 50, 0, 20),
+        Position = UDim2.new(1, -50, 0, 0),
+        Font = Theme.Font,
+        Text = tostring(defaultValue),
+        TextColor3 = Theme.AccentColor,
+        TextSize = 11,
+        TextStrokeTransparency = 0,
+        TextXAlignment = Enum.TextXAlignment.Right,
+        Parent = sliderHolder
+    })
+    
+    local sliderFrame = create("Frame", {
+        BackgroundColor3 = Theme.SurfaceColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 0, 10),
+        Position = UDim2.new(0, 0, 0, 20),
+        Parent = sliderHolder
+    })
+
+    local sliderFill = create("Frame", {
+        BackgroundColor3 = Theme.SliderFillColor,
+        BorderSizePixel = 0,
+        Size = UDim2.new(0, 0, 1, 0), -- Will be updated
+        Position = UDim2.new(0, 0, 0, 0),
+        Parent = sliderFrame
+    })
+
+    local sliderHandle = create("Frame", {
+        BackgroundColor3 = Theme.AccentColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(0, 12, 0, 12),
+        Position = UDim2.new(0, 0, 0.5, -1), -- Will be updated
+        Parent = sliderFrame
+    })
+
+    local isDragging = false
+    local currentValue = defaultValue
+
+    local function updateSlider(inputX)
+        local relativeX = inputX - sliderFrame.AbsolutePosition.X
+        local percentage = math.clamp(relativeX / sliderFrame.AbsoluteSize.X, 0, 1)
+        local value = min + (max - min) * percentage
+        currentValue = math.round(value / step) * step
+        currentValue = math.clamp(currentValue, min, max)
+
+        local fillWidth = (currentValue - min) / (max - min)
+        sliderFill.Size = UDim2.new(fillWidth, 0, 1, 0)
+        sliderHandle.Position = UDim2.new(fillWidth, -sliderHandle.Size.X.Offset / 2, 0.5, -1)
+        sliderLabel.Text = name .. ": " .. tostring(currentValue)
+        sliderValueLabel.Text = tostring(currentValue)
+
+        if callback then
+            callback(currentValue)
+        end
+    end
+
+    sliderHandle.MouseButton1Down:Connect(function()
+        isDragging = true
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter -- Lock mouse to prevent it from going off screen
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            updateSlider(mouse.X)
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = false
+            UserInputService.MouseBehavior = Enum.MouseBehavior.Default -- Release mouse lock
+        end
+    end)
+
+    sliderFrame.MouseButton1Down:Connect(function(input)
+        updateSlider(input.Position.X)
+        isDragging = true
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+    end)
+
+    -- Initial update to set the correct visual state
+    updateSlider(sliderFrame.AbsolutePosition.X + (defaultValue - min) / (max - min) * sliderFrame.AbsoluteSize.X)
+
+    return sliderHolder, function() return currentValue end, function(value)
+        currentValue = math.clamp(value, min, max)
+        updateSlider(sliderFrame.AbsolutePosition.X + (currentValue - min) / (max - min) * sliderFrame.AbsoluteSize.X)
+    end
+end
+
+local function createDropdown(parent, name, options, defaultValue, callback)
+    local dropdownHolder = create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 22),
+        Parent = parent
+    })
+
+    local dropdownLabel = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -90, 0, 20),
+        Position = UDim2.new(0, 0, 0, 0),
+        Font = Theme.Font,
+        Text = name,
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 11,
+        TextStrokeTransparency = 0,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = dropdownHolder
+    })
+
+    local dropdownButton = create("Frame", {
+        BackgroundColor3 = Theme.DropdownColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(0, 90, 0, 18),
+        Position = UDim2.new(1, -90, 0, 2),
+        Parent = dropdownHolder
+    })
+
+    local dropdownText = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -15, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        Font = Theme.Font,
+        Text = defaultValue,
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 10,
+        TextStrokeTransparency = 0,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = dropdownButton
+    })
+
+    local dropdownArrow = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 15, 1, 0),
+        Position = UDim2.new(1, -15, 0, 0),
+        Font = Theme.Font,
+        Text = "▼", -- Down arrow character
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 10,
+        TextStrokeTransparency = 0,
+        TextXAlignment = Enum.TextXAlignment.Center,
+        Parent = dropdownButton
+    })
+    
+    local dropdownClick = create("TextButton", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Text = "",
+        Parent = dropdownButton
+    })
+
+    local optionsFrame = create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 90, 0, 0), -- Height will be set dynamically
+        Position = UDim2.new(1, -90, 0, 22),
+        Visible = false,
+        ZIndex = 2,
+        Parent = dropdownHolder
+    })
+
+    local optionsList = create("Frame", {
+        BackgroundColor3 = Theme.DropdownColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 0, #options * 18), -- 18 pixels per option
+        Position = UDim2.new(0, 0, 0, 0),
+        Parent = optionsFrame
+    })
+    optionsFrame.Size = UDim2.new(0, 90, 0, optionsList.Size.Y.Offset) -- Set options frame height
+
+    local uiListLayout = create("UIListLayout", {
+        FillDirection = Enum.FillDirection.Vertical,
+        Parent = optionsList
+    })
+
+    local currentSelection = defaultValue
+    dropdownText.Text = defaultValue
+
+    for _, option in ipairs(options) do
+        local optionButton = create("TextButton", {
+            BackgroundColor3 = Theme.DropdownColor,
+            BorderColor3 = Color3.fromRGB(12, 12, 12),
+            BorderMode = "Inset",
+            BorderSizePixel = 1,
+            Size = UDim2.new(1, 0, 0, 18),
+            Text = option,
+            Font = Theme.Font,
+            TextColor3 = Theme.PrimaryText,
+            TextSize = 10,
+            TextStrokeTransparency = 0,
+            Parent = optionsList
+        })
+
+        optionButton.MouseButton1Down:Connect(function()
+            currentSelection = option
+            dropdownText.Text = option
+            optionsFrame.Visible = false
+            dropdownArrow.Text = "▼"
+            if callback then
+                callback(option)
+            end
+        end)
+    end
+
+    dropdownClick.MouseButton1Down:Connect(function()
+        optionsFrame.Visible = not optionsFrame.Visible
+        dropdownArrow.Text = optionsFrame.Visible and "▲" or "▼"
+    end)
+    
+    -- Close dropdown if clicked outside
+    UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+        if not gameProcessedEvent and input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if optionsFrame.Visible and not input.Target:IsDescendantOf(dropdownHolder) then
+                optionsFrame.Visible = false
+                dropdownArrow.Text = "▼"
+            end
+        end
+    end)
+
+    return dropdownHolder, function() return currentSelection end, function(value)
+        currentSelection = value
+        dropdownText.Text = value
+        if callback then
+            callback(value)
+        end
+    end
+end
+
+local function createButton(parent, name, callback)
+    local buttonHolder = create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 22),
+        Parent = parent
+    })
+
+    local buttonFrame = create("Frame", {
+        BackgroundColor3 = Theme.ButtonColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 0, 18),
+        Position = UDim2.new(0, 0, 0, 2),
+        Parent = buttonHolder
+    })
+    
+    local buttonOutline = create("Frame", {
+        BackgroundColor3 = Theme.ButtonColor,
+        BorderColor3 = Theme.BorderColor,
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Parent = buttonFrame
+    })
+
+    local buttonLabel = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Font = Theme.Font,
+        Text = name,
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 11,
+        TextStrokeTransparency = 0,
+        Parent = buttonOutline
+    })
+
+    local buttonClick = create("TextButton", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Text = "",
+        Parent = buttonFrame
+    })
+
+    buttonClick.MouseButton1Down:Connect(function()
+        if callback then
+            callback()
+        end
+    end)
+
+    return buttonHolder
+end
+
+local function createTextBox(parent, name, defaultValue, callback)
+    local textboxHolder = create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 40),
+        Parent = parent
+    })
+
+    local textboxLabel = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 20),
+        Position = UDim2.new(0, 0, 0, 0),
+        Font = Theme.Font,
+        Text = name,
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 11,
+        TextStrokeTransparency = 0,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = textboxHolder
+    })
+
+    local textboxFrame = create("Frame", {
+        BackgroundColor3 = Theme.SurfaceColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 0, 18),
+        Position = UDim2.new(0, 0, 0, 20),
+        Parent = textboxHolder
+    })
+
+    local textbox = create("TextBox", {
+        BackgroundColor3 = Theme.BackgroundColor,
+        BorderColor3 = Theme.BorderColor,
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        Text = defaultValue,
+        Font = Theme.Font,
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 10,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextWrapped = false,
+        ClearTextOnFocus = false,
+        Parent = textboxFrame
+    })
+    textbox.TextLabel.TextXAlignment = Enum.TextXAlignment.Left -- Ensure text alignment inside textbox is left
+
+    textbox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            if callback then
+                callback(textbox.Text)
+            end
+        end
+    end)
+
+    return textboxHolder, function() return textbox.Text end, function(value)
+        textbox.Text = value
+    end
+end
+
+local function createColorPicker(parent, name, defaultValue, callback)
+    local colorPickerHolder = create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 65), -- Increased height for the color preview
+        Parent = parent
+    })
+
+    local colorPickerLabel = create("TextLabel", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 20),
+        Position = UDim2.new(0, 0, 0, 0),
+        Font = Theme.Font,
+        Text = name,
+        TextColor3 = Theme.PrimaryText,
+        TextSize = 11,
+        TextStrokeTransparency = 0,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = colorPickerHolder
+    })
+
+    local colorBox = create("Frame", {
+        BackgroundColor3 = defaultValue,
+        BorderColor3 = Theme.ColorPickerBorder,
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(0, 30, 0, 30),
+        Position = UDim2.new(0, 0, 0, 25),
+        Parent = colorPickerHolder
+    })
+
+    local colorClick = create("TextButton", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Text = "",
+        Parent = colorBox
+    })
+
+    local currentColor = defaultValue
+
+    local colorPickerFrame = create("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 200, 0, 200),
+        Position = UDim2.new(0.5, 0, 0.5, 0), -- Centered, will be adjusted
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Visible = false,
+        ZIndex = 3,
+        Parent = screenGui -- Parent to screenGui to be on top
+    })
+
+    local pickerOutline = create("Frame", {
+        BackgroundColor3 = Theme.AccentColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Parent = colorPickerFrame
+    })
+
+    local pickerInner = create("Frame", {
+        BackgroundColor3 = Theme.BackgroundColor,
+        BorderColor3 = Theme.BorderColor,
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, -4, 1, -4),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Parent = pickerOutline
+    })
+
+    -- HSV Color selection
+    local saturationValueBox = create("ImageLabel", {
+        Size = UDim2.new(1, -20, 1, -40),
+        Position = UDim2.new(0, 10, 0, 10),
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(1, 1, 1, 1),
+        Image = "rbxassetid://4746654877", -- A simple white square image
+        Parent = pickerInner
+    })
+    
+    local gradientOverlay = create("UIGradient", {
+        Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0.0, Color3.new(1,1,1)),
+            ColorSequenceKeypoint.new(1.0, Color3.new(0,0,0))
+        },
+        Rotation = 90,
+        Parent = saturationValueBox
+    })
+
+    local hueSlider = create("Frame", {
+        BackgroundColor3 = Theme.SurfaceColor,
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(1, -20, 0, 10),
+        Position = UDim2.new(0, 10, 1, -20),
+        Parent = pickerInner
+    })
+
+    local hueFill = create("Frame", {
+        BackgroundColor3 = Color3.new(), -- Will be updated to show hue spectrum
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 1, 0),
+        Parent = hueSlider
+    })
+    create("UIGradient", {
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, HSVtoRGB(0,1,1)),
+            ColorSequenceKeypoint.new(1/6, HSVtoRGB(1/6,1,1)),
+            ColorSequenceKeypoint.new(2/6, HSVtoRGB(2/6,1,1)),
+            ColorSequenceKeypoint.new(3/6, HSVtoRGB(3/6,1,1)),
+            ColorSequenceKeypoint.new(4/6, HSVtoRGB(4/6,1,1)),
+            ColorSequenceKeypoint.new(5/6, HSVtoRGB(5/6,1,1)),
+            ColorSequenceKeypoint.new(1, HSVtoRGB(1,1,1))
+        }),
+        Rotation = 0,
+        Parent = hueFill
+    })
+
+    local hueHandle = create("Frame", {
+        BackgroundColor3 = Color3.new(1,1,1),
+        BorderColor3 = Color3.fromRGB(12, 12, 12),
+        BorderMode = "Inset",
+        BorderSizePixel = 1,
+        Size = UDim2.new(0, 5, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0), -- Will be updated
+        Parent = hueSlider
+    })
+
+    local currentH, currentS, currentV = RGBtoHSV(defaultValue)
+
+    local function updateColor()
+        currentColor = HSVtoRGB(currentH, currentS, currentV)
+        colorBox.BackgroundColor3 = currentColor
+        saturationValueBox.ImageColor3 = HSVtoRGB(currentH, 1, 1) -- Set the base color for saturation/value square
+        if callback then
+            callback(currentColor)
+        end
+    end
+
+    local isPickingHue = false
+    hueHandle.MouseButton1Down:Connect(function()
+        isPickingHue = true
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+    end)
+    hueSlider.MouseButton1Down:Connect(function(input)
+        local relativeX = input.Position.X - hueSlider.AbsolutePosition.X
+        currentH = math.clamp(relativeX / hueSlider.AbsoluteSize.X, 0, 0.999) -- Avoid 1 to loop back
+        hueHandle.Position = UDim2.new(currentH, -hueHandle.Size.X.Offset / 2, 0, 0)
+        updateColor()
+        isPickingHue = true
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+    end)
+    
+    local isPickingSV = false
+    saturationValueBox.MouseButton1Down:Connect(function(input)
+        isPickingSV = true
+        UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+        local x = math.clamp(input.Position.X - saturationValueBox.AbsolutePosition.X, 0, saturationValueBox.AbsoluteSize.X)
+        local y = math.clamp(input.Position.Y - saturationValueBox.AbsolutePosition.Y, 0, saturationValueBox.AbsoluteSize.Y)
+        currentS = x / saturationValueBox.AbsoluteSize.X
+        currentV = 1 - (y / saturationValueBox.AbsoluteSize.Y)
+        updateColor()
+    end)
+
+
+    UserInputService.InputChanged:Connect(function(input)
+        if isPickingHue and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local relativeX = mouse.X - hueSlider.AbsolutePosition.X
+            currentH = math.clamp(relativeX / hueSlider.AbsoluteSize.X, 0, 0.999)
+            hueHandle.Position = UDim2.new(currentH, -hueHandle.Size.X.Offset / 2, 0, 0)
+            updateColor()
+        elseif isPickingSV and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local x = math.clamp(mouse.X - saturationValueBox.AbsolutePosition.X, 0, saturationValueBox.AbsoluteSize.X)
+            local y = math.clamp(mouse.Y - saturationValueBox.AbsolutePosition.Y, 0, saturationValueBox.AbsoluteSize.Y)
+            currentS = x / saturationValueBox.AbsoluteSize.X
+            currentV = 1 - (y / saturationValueBox.AbsoluteSize.Y)
+            updateColor()
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isPickingHue = false
+            isPickingSV = false
+            UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+        end
+    end)
+
+    colorClick.MouseButton1Down:Connect(function()
+        colorPickerFrame.Visible = not colorPickerFrame.Visible
+        colorPickerFrame.Position = UDim2.new(0, mouse.X, 0, mouse.Y) -- Position near mouse
+        -- Adjust position if it goes off-screen
+        local x = mouse.X
+        local y = mouse.Y
+        local pickerWidth = colorPickerFrame.AbsoluteSize.X
+        local pickerHeight = colorPickerFrame.AbsoluteSize.Y
+
+        if x + pickerWidth > game.Workspace.CurrentCamera.ViewportSize.X then
+            x = game.Workspace.CurrentCamera.ViewportSize.X - pickerWidth
+        end
+        if y + pickerHeight > game.Workspace.CurrentCamera.ViewportSize.Y then
+            y = game.Workspace.CurrentCamera.ViewportSize.Y - pickerHeight
+        end
+        colorPickerFrame.Position = UDim2.new(0, x, 0, y)
+    end)
+
+    -- Initial setup
+    local defaultH, defaultS, defaultV = RGBtoHSV(defaultValue)
+    currentH = defaultH
+    currentS = defaultS
+    currentV = defaultV
+    hueHandle.Position = UDim2.new(currentH, -hueHandle.Size.X.Offset / 2, 0, 0)
+    updateColor()
+
+    return colorPickerHolder, function() return currentColor end, function(value)
+        currentColor = value
+        local h, s, v = RGBtoHSV(value)
+        currentH = h
+        currentS = s
+        currentV = v
+        hueHandle.Position = UDim2.new(currentH, -hueHandle.Size.X.Offset / 2, 0, 0)
+        updateColor()
+    end
+end
+
+-- Begin GUI Population
+-- Combat Tab
+local combatPage = tabPages[1].page
+local combatSubTabs = createSubTabs(combatPage, {"Main", "Silent Aim", "Orbit Lock", "Fun Features"})
+local combatMainTab = combatSubTabs[1].page
+local combatSilentAimTab = combatSubTabs[2].page
+local combatOrbitLockTab = combatSubTabs[3].page
+local combatFunFeaturesTab = combatSubTabs[4].page
+
+local combatMainSection = createSection(combatMainTab, "General Combat", UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, 250))
+local combatFOVSection = createSection(combatMainTab, "FOV Settings", UDim2.new(0, 0, 0, 260), UDim2.new(1, 0, 0, 180))
+
+local silentAimSection = createSection(combatSilentAimTab, "Silent Aim Settings", UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, 280))
+local silentAimFOVSection = createSection(combatSilentAimTab, "Silent Aim FOV", UDim2.new(0, 0, 0, 290), UDim2.new(1, 0, 0, 180))
+
+local orbitLockSection = createSection(combatOrbitLockTab, "Orbit Lock Settings", UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, 180))
+
+local funFeaturesSection = createSection(combatFunFeaturesTab, "Combat Visuals & Sounds", UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, 300))
+
+-- Combat Main
+local combatEnableToggle, getCombatEnable, setCombatEnable = createToggleWithHotkey(combatMainSection, "Enable Combat", Settings.Combat.Enable, function(value, hotkey)
+    Settings.Combat.Enable = value
+    Settings.Combat.Hotkey = hotkey
+end)
+local combatSmoothnessToggle, getCombatSmoothness, setCombatSmoothness = createToggle(combatMainSection, "Use Smoothness", Settings.Combat.UseSmoothness, function(value)
+    Settings.Combat.UseSmoothness = value
+end)
+local combatPredictionToggle, getCombatPrediction, setCombatPrediction = createToggle(combatMainSection, "Use Prediction", Settings.Combat.UsePrediction, function(value)
+    Settings.Combat.UsePrediction = value
+end)
+local combatCustomOffsetToggle, getCombatCustomOffset, setCombatCustomOffset = createToggle(combatMainSection, "Use Custom Offset", Settings.Combat.UseCustomOffset, function(value)
+    Settings.Combat.UseCustomOffset = value
+end)
+
+local combatHitPartDropdown, getCombatHitPart, setCombatHitPart = createDropdown(combatMainSection, "Hit Part", {"Head", "Torso", "HumanoidRootPart", "Closest"}, Settings.Combat.HitPart, function(value)
+    Settings.Combat.HitPart = value
+end)
+local combatAimTypeDropdown, getCombatAimType, setCombatAimType = createDropdown(combatMainSection, "Aim Type", {"Mouse", "Client", "Server"}, Settings.Combat.AimType, function(value)
+    Settings.Combat.AimType = value
+end)
+
+local combatXSmoothnessSlider, getCombatXSmoothness, setCombatXSmoothness = createSlider(combatMainSection, "X Smoothness", 0, 100, Settings.Combat.XSmoothness, 1, function(value)
+    Settings.Combat.XSmoothness = value
+end)
+local combatYSmoothnessSlider, getCombatYSmoothness, setCombatYSmoothness = createSlider(combatMainSection, "Y Smoothness", 0, 100, Settings.Combat.YSmoothness, 1, function(value)
+    Settings.Combat.YSmoothness = value
+end)
+local combatXPredictionSlider, getCombatXPrediction, setCombatXPrediction = createSlider(combatMainSection, "X Prediction", 0, 100, Settings.Combat.XPrediction, 1, function(value)
+    Settings.Combat.XPrediction = value
+end)
+local combatYPredictionSlider, getCombatYPrediction, setCombatYPrediction = createSlider(combatMainSection, "Y Prediction", 0, 100, Settings.Combat.YPrediction, 1, function(value)
+    Settings.Combat.YPrediction = value
+end)
+local combatXOffsetSlider, getCombatXOffset, setCombatXOffset = createSlider(combatMainSection, "X Offset", -100, 100, Settings.Combat.XOffset, 1, function(value)
+    Settings.Combat.XOffset = value
+end)
+local combatYOffsetSlider, getCombatYOffset, setCombatYOffset = createSlider(combatMainSection, "Y Offset", -100, 100, Settings.Combat.YOffset, 1, function(value)
+    Settings.Combat.YOffset = value
+end)
+
+-- Combat FOV Settings
+local combatUseFOVToggle, getCombatUseFOV, setCombatUseFOV = createToggle(combatFOVSection, "Use FOV", Settings.Combat.UseFOV, function(value)
+    Settings.Combat.UseFOV = value
+end)
+local combatDrawFOVToggle, getCombatDrawFOV, setCombatDrawFOV = createToggle(combatFOVSection, "Draw FOV", Settings.Combat.DrawFOV, function(value)
+    Settings.Combat.DrawFOV = value
+end)
+local combatFillFOVToggle, getCombatFillFOV, setCombatFillFOV = createToggle(combatFOVSection, "Fill FOV", Settings.Combat.FillFOV, function(value)
+    Settings.Combat.FillFOV = value
+end)
+local combatFOVSizeSlider, getCombatFOVSize, setCombatFOVSize = createSlider(combatFOVSection, "FOV Size", 50, 500, Settings.Combat.FOVSize, 1, function(value)
+    Settings.Combat.FOVSize = value
+end)
+local combatFOVOutlineColorPicker, getCombatFOVOutlineColor, setCombatFOVOutlineColor = createColorPicker(combatFOVSection, "FOV Outline Color", Settings.Combat.FOVOutlineColor, function(color)
+    Settings.Combat.FOVOutlineColor = color
+end)
+local combatFOVFillColorPicker, getCombatFOVFillColor, setCombatFOVFillColor = createColorPicker(combatFOVSection, "FOV Fill Color", Settings.Combat.FOVFillColor, function(color)
+    Settings.Combat.FOVFillColor = color
+end)
+local combatFOVFillTransparencySlider, getCombatFOVFillTransparency, setCombatFOVFillTransparency = createSlider(combatFOVSection, "Fill Transparency", 0, 100, Settings.Combat.FOVFillTransparency, 1, function(value)
+    Settings.Combat.FOVFillTransparency = value
+end)
+local combatFOVOutlineTransparencySlider, getCombatFOVOutlineTransparency, setCombatFOVOutlineTransparency = createSlider(combatFOVSection, "Outline Transparency", 0, 100, Settings.Combat.FOVOutlineTransparency, 1, function(value)
+    Settings.Combat.FOVOutlineTransparency = value
+end)
+
+-- Silent Aim Tab
+local silentAimEnableToggle, getSilentAimEnable, setSilentAimEnable = createToggleWithHotkey(silentAimSection, "Enable Silent Aim", Settings.Combat.SilentAim.Enable, function(value, hotkey)
+    Settings.Combat.SilentAim.Enable = value
+    Settings.Combat.SilentAim.Hotkey = hotkey
+end)
+local silentAimHitPartsDropdown, getSilentAimHitParts, setSilentAimHitParts = createDropdown(silentAimSection, "Hit Parts", {"Head", "Torso", "HumanoidRootPart", "All"}, Settings.Combat.SilentAim.HitParts[1], function(value)
+    Settings.Combat.SilentAim.HitParts = {value} -- For simplicity, assuming single selection
+end)
+local silentAimHitChanceSlider, getSilentAimHitChance, setSilentAimHitChance = createSlider(silentAimSection, "Hit Chance", 0, 100, Settings.Combat.SilentAim.HitChance, 1, function(value)
+    Settings.Combat.SilentAim.HitChance = value
+end)
+local silentAimWallCheckToggle, getSilentAimWallCheck, setSilentAimWallCheck = createToggle(silentAimSection, "Wall Check", Settings.Combat.SilentAim.WallCheck, function(value)
+    Settings.Combat.SilentAim.WallCheck = value
+end)
+local silentAimTeamCheckToggle, getSilentAimTeamCheck, setSilentAimTeamCheck = createToggle(silentAimSection, "Team Check", Settings.Combat.SilentAim.TeamCheck, function(value)
+    Settings.Combat.SilentAim.TeamCheck = value
+end)
+
+local silentAimUseFOVToggle, getSilentAimUseFOV, setSilentAimUseFOV = createToggle(silentAimFOVSection, "Use FOV", Settings.Combat.SilentAim.UseFOV, function(value)
+    Settings.Combat.SilentAim.UseFOV = value
+end)
+local silentAimDrawFOVToggle, getSilentAimDrawFOV, setSilentAimDrawFOV = createToggle(silentAimFOVSection, "Draw FOV", Settings.Combat.SilentAim.DrawFOV, function(value)
+    Settings.Combat.SilentAim.DrawFOV = value
+end)
+local silentAimFillFOVToggle, getSilentAimFillFOV, setSilentAimFillFOV = createToggle(silentAimFOVSection, "Fill FOV", Settings.Combat.SilentAim.FillFOV, function(value)
+    Settings.Combat.SilentAim.FillFOV = value
+end)
+local silentAimFOVSizeSlider, getSilentAimFOVSize, setSilentAimFOVSize = createSlider(silentAimFOVSection, "FOV Size", 50, 500, Settings.Combat.SilentAim.FOVSize, 1, function(value)
+    Settings.Combat.SilentAim.FOVSize = value
+end)
+local silentAimFOVOutlineColorPicker, getSilentAimFOVOutlineColor, setSilentAimFOVOutlineColor = createColorPicker(silentAimFOVSection, "FOV Outline Color", Settings.Combat.SilentAim.FOVOutlineColor, function(color)
+    Settings.Combat.SilentAim.FOVOutlineColor = color
+end)
+local silentAimFOVFillColorPicker, getSilentAimFOVFillColor, setSilentAimFOVFillColor = createColorPicker(silentAimFOVSection, "FOV Fill Color", Settings.Combat.SilentAim.FOVFillColor, function(color)
+    Settings.Combat.SilentAim.FOVFillColor = color
+end)
+local silentAimFOVFillTransparencySlider, getSilentAimFOVFillTransparency, setSilentAimFOVFillTransparency = createSlider(silentAimFOVSection, "Fill Transparency", 0, 100, Settings.Combat.SilentAim.FOVFillTransparency, 1, function(value)
+    Settings.Combat.SilentAim.FOVFillTransparency = value
+end)
+local silentAimFOVOutlineTransparencySlider, getSilentAimFOVOutlineTransparency, setSilentAimFOVOutlineTransparency = createSlider(silentAimFOVSection, "Outline Transparency", 0, 100, Settings.Combat.SilentAim.FOVOutlineTransparency, 1, function(value)
+    Settings.Combat.SilentAim.FOVOutlineTransparency = value
+end)
+
+-- Orbit Lock Tab
+local orbitLockEnableToggle, getOrbitLockEnable, setOrbitLockEnable = createToggleWithHotkey(orbitLockSection, "Enable Orbit Lock", Settings.Combat.OrbitLock.Enable, function(value, hotkey)
+    Settings.Combat.OrbitLock.Enable = value
+    Settings.Combat.OrbitLock.Hotkey = hotkey
+end)
+local orbitLockHitPartDropdown, getOrbitLockHitPart, setOrbitLockHitPart = createDropdown(orbitLockSection, "Hit Part", {"Head", "Torso", "HumanoidRootPart"}, Settings.Combat.OrbitLock.HitPart, function(value)
+    Settings.Combat.OrbitLock.HitPart = value
+end)
+local orbitLockLookAtTargetToggle, getOrbitLockLookAtTarget, setOrbitLockLookAtTarget = createToggle(orbitLockSection, "Look At Target", Settings.Combat.OrbitLock.LookAtTarget, function(value)
+    Settings.Combat.OrbitLock.LookAtTarget = value
+end)
+local orbitLockSpectateToggle, getOrbitLockSpectate, setOrbitLockSpectate = createToggle(orbitLockSection, "Spectate Target", Settings.Combat.OrbitLock.Spectate, function(value)
+    Settings.Combat.OrbitLock.Spectate = value
+end)
+local orbitLockXOffsetSlider, getOrbitLockXOffset, setOrbitLockXOffset = createSlider(orbitLockSection, "X Offset", -50, 50, Settings.Combat.OrbitLock.XOffset, 1, function(value)
+    Settings.Combat.OrbitLock.XOffset = value
+end)
+local orbitLockYOffsetSlider, getOrbitLockYOffset, setOrbitLockYOffset = createSlider(orbitLockSection, "Y Offset", -50, 50, Settings.Combat.OrbitLock.YOffset, 1, function(value)
+    Settings.Combat.OrbitLock.YOffset = value
+end)
+local orbitLockResetOffsetButton = createButton(orbitLockSection, "Reset Offset", function()
+    setOrbitLockXOffset(0)
+    setOrbitLockYOffset(0)
+    Settings.Combat.OrbitLock.XOffset = 0
+    Settings.Combat.OrbitLock.YOffset = 0
+end)
+
+-- Fun Features Tab
+local hitNotificationToggle, getHitNotification, setHitNotification = createToggle(funFeaturesSection, "Hit Notification", Settings.Combat.HitNotification, function(value)
+    Settings.Combat.HitNotification = value
+end)
+local hitSoundDropdown, getHitSound, setHitSound = createDropdown(funFeaturesSection, "Hit Sound", {"None", "Ding", "Clank", "Custom"}, Settings.Combat.HitSound, function(value)
+    Settings.Combat.HitSound = value
+end)
+local targetTracerToggle, getTargetTracer, setTargetTracer = createToggle(funFeaturesSection, "Target Tracer", Settings.Combat.TargetTracer, function(value)
+    Settings.Combat.TargetTracer = value
+end)
+local targetTracerColorPicker, getTargetTracerColor, setTargetTracerColor = createColorPicker(funFeaturesSection, "Tracer Color", Settings.Combat.TargetTracerColor, function(color)
+    Settings.Combat.TargetTracerColor = color
+end)
+local targetHeadDotToggle, getTargetHeadDot, setTargetHeadDot = createToggle(funFeaturesSection, "Target Head Dot", Settings.Combat.TargetHeadDot, function(value)
+    Settings.Combat.TargetHeadDot = value
+end)
+local targetHeadDotColorPicker, getTargetHeadDotColor, setTargetHeadDotColor = createColorPicker(funFeaturesSection, "Head Dot Color", Settings.Combat.TargetHeadDotColor, function(color)
+    Settings.Combat.TargetHeadDotColor = color
+end)
+local targetInfoBoxToggle, getTargetInfoBox, setTargetInfoBox = createToggle(funFeaturesSection, "Target Info Box", Settings.Combat.TargetInfoBox, function(value)
+    Settings.Combat.TargetInfoBox = value
+end)
+local targetInfoBoxColorPicker, getTargetInfoBoxColor, setTargetInfoBoxColor = createColorPicker(funFeaturesSection, "Info Box Color", Settings.Combat.TargetInfoBoxColor, function(color)
+    Settings.Combat.TargetInfoBoxColor = color
+end)
+local targetGlowChamsToggle, getTargetGlowChams, setTargetGlowChams = createToggle(funFeaturesSection, "Target Glow Chams", Settings.Combat.TargetGlowChams, function(value)
+    Settings.Combat.TargetGlowChams = value
+end)
+local targetGlowChamsColorPicker, getTargetGlowChamsColor, setTargetGlowChamsColor = createColorPicker(funFeaturesSection, "Glow Chams Color", Settings.Combat.TargetGlowChamsColor, function(color)
+    Settings.Combat.TargetGlowChamsColor = color
+end)
+
+-- Visuals Tab
+local visualsPage = tabPages[2].page
+local visualsSubTabs = createSubTabs(visualsPage, {"ESP", "Self ESP", "World", "Effects"})
+local visualsESPTab = visualsSubTabs[1].page
+local visualsSelfESPTab = visualsSubTabs[2].page
+local visualsWorldTab = visualsSubTabs[3].page
+local visualsEffectsTab = visualsSubTabs[4].page
+
+local espSection = createSection(visualsESPTab, "ESP Settings", UDim2.new(0,0,0,0), UDim2.new(1,0,0,500))
+local selfEspSection = createSection(visualsSelfESPTab, "Self ESP Settings", UDim2.new(0,0,0,0), UDim2.new(1,0,0,500))
+local worldSection = createSection(visualsWorldTab, "World Visuals", UDim2.new(0,0,0,0), UDim2.new(1,0,0,300))
+local effectsSection = createSection(visualsEffectsTab, "Client-Side Effects", UDim2.new(0,0,0,0), UDim2.new(1,0,0,400))
+
+-- ESP Tab
+local espEnableToggle, getESPEnable, setESPEnable = createToggle(espSection, "Enable ESP", Settings.Visuals.ESP.Enable, function(value)
+    Settings.Visuals.ESP.Enable = value
+end)
+local espDistanceSlider, getESPDistance, setESPDistance = createSlider(espSection, "Render Distance", 0, 2000, Settings.Visuals.ESP.Distance, 10, function(value)
+    Settings.Visuals.ESP.Distance = value
+end)
+
+local boxEspToggle, getBoxEsp, setBoxEsp = createToggle(espSection, "Box ESP", Settings.Visuals.ESP.BoxESP, function(value)
+    Settings.Visuals.ESP.BoxESP = value
+end)
+local boxEspColorPicker, getBoxEspColor, setBoxEspColor = createColorPicker(espSection, "Box Color", Settings.Visuals.ESP.BoxESPColor, function(color)
+    Settings.Visuals.ESP.BoxESPColor = color
+end)
+local boxTypeDropdown, getBoxType, setBoxType = createDropdown(espSection, "Box Type", {"Normal", "Corner", "3D"}, Settings.Visuals.ESP.BoxType, function(value)
+    Settings.Visuals.ESP.BoxType = value
+end)
+local boxGlowToggle, getBoxGlow, setBoxGlow = createToggle(espSection, "Box Glow", Settings.Visuals.ESP.BoxGlow, function(value)
+    Settings.Visuals.ESP.BoxGlow = value
+end)
+local boxGlowColorPicker, getBoxGlowColor, setBoxGlowColor = createColorPicker(espSection, "Box Glow Color", Settings.Visuals.ESP.BoxGlowColor, function(color)
+    Settings.Visuals.ESP.BoxGlowColor = color
+end)
+
+local nameEspToggle, getNameEsp, setNameEsp = createToggle(espSection, "Name ESP", Settings.Visuals.ESP.NameESP, function(value)
+    Settings.Visuals.ESP.NameESP = value
+end)
+local nameEspColorPicker, getNameEspColor, setNameEspColor = createColorPicker(espSection, "Name Color", Settings.Visuals.ESP.NameESPColor, function(color)
+    Settings.Visuals.ESP.NameESPColor = color
+end)
+local nameOutlineToggle, getNameOutline, setNameOutline = createToggle(espSection, "Name Outline", Settings.Visuals.ESP.NameOutline, function(value)
+    Settings.Visuals.ESP.NameOutline = value
+end)
+local nameGlowToggle, getNameGlow, setNameGlow = createToggle(espSection, "Name Glow", Settings.Visuals.ESP.NameGlow, function(value)
+    Settings.Visuals.ESP.NameGlow = value
+end)
+local nameGlowColorPicker, getNameGlowColor, setNameGlowColor = createColorPicker(espSection, "Name Glow Color", Settings.Visuals.ESP.NameGlowColor, function(color)
+    Settings.Visuals.ESP.NameGlowColor = color
+end)
+
+local healthBarEspToggle, getHealthBarEsp, setHealthBarEsp = createToggle(espSection, "Health Bar ESP", Settings.Visuals.ESP.HealthBarESP, function(value)
+    Settings.Visuals.ESP.HealthBarESP = value
+end)
+local healthBarBGColorPicker, getHealthBarBGColor, setHealthBarBGColor = createColorPicker(espSection, "Health Bar BG Color", Settings.Visuals.ESP.HealthBarBGColor, function(color)
+    Settings.Visuals.ESP.HealthBarBGColor = color
+end)
+local healthBarColorPicker, getHealthBarColor, setHealthBarColor = createColorPicker(espSection, "Health Bar Color", Settings.Visuals.ESP.HealthBarColor, function(color)
+    Settings.Visuals.ESP.HealthBarColor = color
+end)
+local healthBarOutlineToggle, getHealthBarOutline, setHealthBarOutline = createToggle(espSection, "Health Bar Outline", Settings.Visuals.ESP.HealthBarOutline, function(value)
+    Settings.Visuals.ESP.HealthBarOutline = value
+end)
+local healthBarGlowToggle, getHealthBarGlow, setHealthBarGlow = createToggle(espSection, "Health Bar Glow", Settings.Visuals.ESP.HealthBarGlow, function(value)
+    Settings.Visuals.ESP.HealthBarGlow = value
+end)
+local healthBarGlowColorPicker, getHealthBarGlowColor, setHealthBarGlowColor = createColorPicker(espSection, "Health Bar Glow Color", Settings.Visuals.ESP.HealthBarGlowColor, function(color)
+    Settings.Visuals.ESP.HealthBarGlowColor = color
+end)
+local healthNumberToggle, getHealthNumber, setHealthNumber = createToggle(espSection, "Health Number", Settings.Visuals.ESP.HealthNumber, function(value)
+    Settings.Visuals.ESP.HealthNumber = value
+end)
+local healthNumberColorPicker, getHealthNumberColor, setHealthNumberColor = createColorPicker(espSection, "Health Number Color", Settings.Visuals.ESP.HealthNumberColor, function(color)
+    Settings.Visuals.ESP.HealthNumberColor = color
+end)
+
+local toolEspToggle, getToolEsp, setToolEsp = createToggle(espSection, "Tool ESP", Settings.Visuals.ESP.ToolESP, function(value)
+    Settings.Visuals.ESP.ToolESP = value
+end)
+local toolEspColorPicker, getToolEspColor, setToolEspColor = createColorPicker(espSection, "Tool Color", Settings.Visuals.ESP.ToolESPColor, function(color)
+    Settings.Visuals.ESP.ToolESPColor = color
+end)
+local toolOutlineToggle, getToolOutline, setToolOutline = createToggle(espSection, "Tool Outline", Settings.Visuals.ESP.ToolOutline, function(value)
+    Settings.Visuals.ESP.ToolOutline = value
+end)
+local toolGlowToggle, getToolGlow, setToolGlow = createToggle(espSection, "Tool Glow", Settings.Visuals.ESP.ToolGlow, function(value)
+    Settings.Visuals.ESP.ToolGlow = value
+end)
+local toolGlowColorPicker, getToolGlowColor, setToolGlowColor = createColorPicker(espSection, "Tool Glow Color", Settings.Visuals.ESP.ToolGlowColor, function(color)
+    Settings.Visuals.ESP.ToolGlowColor = color
+end)
+
+local distanceEspToggle, getDistanceEsp, setDistanceEsp = createToggle(espSection, "Distance ESP", Settings.Visuals.ESP.DistanceESP, function(value)
+    Settings.Visuals.ESP.DistanceESP = value
+end)
+local distanceEspColorPicker, getDistanceEspColor, setDistanceEspColor = createColorPicker(espSection, "Distance Color", Settings.Visuals.ESP.DistanceESPColor, function(color)
+    Settings.Visuals.ESP.DistanceESPColor = color
+end)
+local distanceOutlineToggle, getDistanceOutline, setDistanceOutline = createToggle(espSection, "Distance Outline", Settings.Visuals.ESP.DistanceOutline, function(value)
+    Settings.Visuals.ESP.DistanceOutline = value
+end)
+local distanceGlowToggle, getDistanceGlow, setDistanceGlow = createToggle(espSection, "Distance Glow", Settings.Visuals.ESP.DistanceGlow, function(value)
+    Settings.Visuals.ESP.DistanceGlow = value
+end)
+local distanceGlowColorPicker, getDistanceGlowColor, setDistanceGlowColor = createColorPicker(espSection, "Distance Glow Color", Settings.Visuals.ESP.DistanceGlowColor, function(color)
+    Settings.Visuals.ESP.DistanceGlowColor = color
+end)
+
+local chamsEspToggle, getChamsEsp, setChamsEsp = createToggle(espSection, "Chams ESP", Settings.Visuals.ESP.ChamsESP, function(value)
+    Settings.Visuals.ESP.ChamsESP = value
+end)
+local chamsEspColorPicker, getChamsEspColor, setChamsEspColor = createColorPicker(espSection, "Chams Color", Settings.Visuals.ESP.ChamsESPColor, function(color)
+    Settings.Visuals.ESP.ChamsESPColor = color
+end)
+local chamsGlowToggle, getChamsGlow, setChamsGlow = createToggle(espSection, "Chams Glow", Settings.Visuals.ESP.ChamsGlow, function(value)
+    Settings.Visuals.ESP.ChamsGlow = value
+end)
+local chamsGlowColorPicker, getChamsGlowColor, setChamsGlowColor = createColorPicker(espSection, "Chams Glow Color", Settings.Visuals.ESP.ChamsGlowColor, function(color)
+    Settings.Visuals.ESP.ChamsGlowColor = color
+end)
+
+local skeletonEspToggle, getSkeletonEsp, setSkeletonEsp = createToggle(espSection, "Skeleton ESP", Settings.Visuals.ESP.SkeletonESP, function(value)
+    Settings.Visuals.ESP.SkeletonESP = value
+end)
+local skeletonEspColorPicker, getSkeletonEspColor, setSkeletonEspColor = createColorPicker(espSection, "Skeleton Color", Settings.Visuals.ESP.SkeletonESPColor, function(color)
+    Settings.Visuals.ESP.SkeletonESPColor = color
+end)
+local skeletonGlowToggle, getSkeletonGlow, setSkeletonGlow = createToggle(espSection, "Skeleton Glow", Settings.Visuals.ESP.SkeletonGlow, function(value)
+    Settings.Visuals.ESP.SkeletonGlow = value
+end)
+local skeletonGlowColorPicker, getSkeletonGlowColor, setSkeletonGlowColor = createColorPicker(espSection, "Skeleton Glow Color", Settings.Visuals.ESP.SkeletonGlowColor, function(color)
+    Settings.Visuals.ESP.SkeletonGlowColor = color
+end)
+
+local espGlowIntensitySlider, getESPGlowIntensity, setESPGlowIntensity = createSlider(espSection, "Glow Intensity", 0, 100, Settings.Visuals.ESP.GlowIntensity, 1, function(value)
+    Settings.Visuals.ESP.GlowIntensity = value
+end)
+
+-- Self ESP Tab
+local selfEspEnableToggle, getSelfESPEnable, setSelfESPEnable = createToggle(selfEspSection, "Enable Self ESP", Settings.Visuals.SelfESP.Enable, function(value)
+    Settings.Visuals.SelfESP.Enable = value
+end)
+local selfEspDistanceSlider, getSelfESPDistance, setSelfESPDistance = createSlider(selfEspSection, "Render Distance", 0, 2000, Settings.Visuals.SelfESP.Distance, 10, function(value)
+    Settings.Visuals.SelfESP.Distance = value
+end)
+
+local selfBoxEspToggle, getSelfBoxEsp, setSelfBoxEsp = createToggle(selfEspSection, "Box ESP", Settings.Visuals.SelfESP.BoxESP, function(value)
+    Settings.Visuals.SelfESP.BoxESP = value
+end)
+local selfBoxEspColorPicker, getSelfBoxEspColor, setSelfBoxEspColor = createColorPicker(selfEspSection, "Box Color", Settings.Visuals.SelfESP.BoxESPColor, function(color)
+    Settings.Visuals.SelfESP.BoxESPColor = color
+end)
+local selfBoxTypeDropdown, getSelfBoxType, setSelfBoxType = createDropdown(selfEspSection, "Box Type", {"Normal", "Corner", "3D"}, Settings.Visuals.SelfESP.BoxType, function(value)
+    Settings.Visuals.SelfESP.BoxType = value
+end)
+local selfBoxGlowToggle, getSelfBoxGlow, setSelfBoxGlow = createToggle(selfEspSection, "Box Glow", Settings.Visuals.SelfESP.BoxGlow, function(value)
+    Settings.Visuals.SelfESP.BoxGlow = value
+end)
+local selfBoxGlowColorPicker, getSelfBoxGlowColor, setSelfBoxGlowColor = createColorPicker(selfEspSection, "Box Glow Color", Settings.Visuals.SelfESP.BoxGlowColor, function(color)
+    Settings.Visuals.SelfESP.BoxGlowColor = color
+end)
+
+local selfNameEspToggle, getSelfNameEsp, setSelfNameEsp = createToggle(selfEspSection, "Name ESP", Settings.Visuals.SelfESP.NameESP, function(value)
+    Settings.Visuals.SelfESP.NameESP = value
+end)
+local selfNameEspColorPicker, getSelfNameEspColor, setSelfNameEspColor = createColorPicker(selfEspSection, "Name Color", Settings.Visuals.SelfESP.NameESPColor, function(color)
+    Settings.Visuals.SelfESP.NameESPColor = color
+end)
+local selfNameOutlineToggle, getSelfNameOutline, setSelfNameOutline = createToggle(selfEspSection, "Name Outline", Settings.Visuals.SelfESP.NameOutline, function(value)
+    Settings.Visuals.SelfESP.NameOutline = value
+end)
+local selfNameGlowToggle, getSelfNameGlow, setSelfNameGlow = createToggle(selfEspSection, "Name Glow", Settings.Visuals.SelfESP.NameGlow, function(value)
+    Settings.Visuals.SelfESP.NameGlow = value
+end)
+local selfNameGlowColorPicker, getSelfNameGlowColor, setSelfNameGlowColor = createColorPicker(selfEspSection, "Name Glow Color", Settings.Visuals.SelfESP.NameGlowColor, function(color)
+    Settings.Visuals.SelfESP.NameGlowColor = color
+end)
+
+local selfHealthBarEspToggle, getSelfHealthBarEsp, setSelfHealthBarEsp = createToggle(selfEspSection, "Health Bar ESP", Settings.Visuals.SelfESP.HealthBarESP, function(value)
+    Settings.Visuals.SelfESP.HealthBarESP = value
+end)
+local selfHealthBarBGColorPicker, getSelfHealthBarBGColor, setSelfHealthBarBGColor = createColorPicker(selfEspSection, "Health Bar BG Color", Settings.Visuals.SelfESP.HealthBarBGColor, function(color)
+    Settings.Visuals.SelfESP.HealthBarBGColor = color
+end)
+local selfHealthBarColorPicker, getSelfHealthBarColor, setSelfHealthBarColor = createColorPicker(selfEspSection, "Health Bar Color", Settings.Visuals.SelfESP.HealthBarColor, function(color)
+    Settings.Visuals.SelfESP.HealthBarColor = color
+end)
+local selfHealthBarOutlineToggle, getSelfHealthBarOutline, setSelfHealthBarOutline = createToggle(selfEspSection, "Health Bar Outline", Settings.Visuals.SelfESP.HealthBarOutline, function(value)
+    Settings.Visuals.SelfESP.HealthBarOutline = value
+end)
+local selfHealthBarGlowToggle, getSelfHealthBarGlow, setSelfHealthBarGlow = createToggle(selfEspSection, "Health Bar Glow", Settings.Visuals.SelfESP.HealthBarGlow, function(value)
+    Settings.Visuals.SelfESP.HealthBarGlow = value
+end)
+local selfHealthBarGlowColorPicker, getSelfHealthBarGlowColor, setSelfHealthBarGlowColor = createColorPicker(selfEspSection, "Health Bar Glow Color", Settings.Visuals.SelfESP.HealthBarGlowColor, function(color)
+    Settings.Visuals.SelfESP.HealthBarGlowColor = color
+end)
+local selfHealthNumberToggle, getSelfHealthNumber, setSelfHealthNumber = createToggle(selfEspSection, "Health Number", Settings.Visuals.SelfESP.HealthNumber, function(value)
+    Settings.Visuals.SelfESP.HealthNumber = value
+end)
+local selfHealthNumberColorPicker, getSelfHealthNumberColor, setSelfHealthNumberColor = createColorPicker(selfEspSection, "Health Number Color", Settings.Visuals.SelfESP.HealthNumberColor, function(color)
+    Settings.Visuals.SelfESP.HealthNumberColor = color
+end)
+
+local selfToolEspToggle, getSelfToolEsp, setSelfToolEsp = createToggle(selfEspSection, "Tool ESP", Settings.Visuals.SelfESP.ToolESP, function(value)
+    Settings.Visuals.SelfESP.ToolESP = value
+end)
+local selfToolEspColorPicker, getSelfToolEspColor, setSelfToolEspColor = createColorPicker(selfEspSection, "Tool Color", Settings.Visuals.SelfESP.ToolESPColor, function(color)
+    Settings.Visuals.SelfESP.ToolESPColor = color
+end)
+local selfToolOutlineToggle, getSelfToolOutline, setSelfToolOutline = createToggle(selfEspSection, "Tool Outline", Settings.Visuals.SelfESP.ToolOutline, function(value)
+    Settings.Visuals.SelfESP.ToolOutline = value
+end)
+local selfToolGlowToggle, getSelfToolGlow, setSelfToolGlow = createToggle(selfEspSection, "Tool Glow", Settings.Visuals.SelfESP.ToolGlow, function(value)
+    Settings.Visuals.SelfESP.ToolGlow = value
+end)
+local selfToolGlowColorPicker, getSelfToolGlowColor, setSelfToolGlowColor = createColorPicker(selfEspSection, "Tool Glow Color", Settings.Visuals.SelfESP.ToolGlowColor, function(color)
+    Settings.Visuals.SelfESP.ToolGlowColor = color
+end)
+
+local selfDistanceEspToggle, getSelfDistanceEsp, setSelfDistanceEsp = createToggle(selfEspSection, "Distance ESP", Settings.Visuals.SelfESP.DistanceESP, function(value)
+    Settings.Visuals.SelfESP.DistanceESP = value
+end)
+local selfDistanceEspColorPicker, getSelfDistanceEspColor, setSelfDistanceEspColor = createColorPicker(selfEspSection, "Distance Color", Settings.Visuals.SelfESP.DistanceESPColor, function(color)
+    Settings.Visuals.SelfESP.DistanceESPColor = color
+end)
+local selfDistanceOutlineToggle, getSelfDistanceOutline, setSelfDistanceOutline = createToggle(selfEspSection, "Distance Outline", Settings.Visuals.SelfESP.DistanceOutline, function(value)
+    Settings.Visuals.SelfESP.DistanceOutline = value
+end)
+local selfDistanceGlowToggle, getSelfDistanceGlow, setSelfDistanceGlow = createToggle(selfEspSection, "Distance Glow", Settings.Visuals.SelfESP.DistanceGlow, function(value)
+    Settings.Visuals.SelfESP.DistanceGlow = value
+end)
+local selfDistanceGlowColorPicker, getSelfDistanceGlowColor, setSelfDistanceGlowColor = createColorPicker(selfEspSection, "Distance Glow Color", Settings.Visuals.SelfESP.DistanceGlowColor, function(color)
+    Settings.Visuals.SelfESP.DistanceGlowColor = color
+end)
+
+local selfChamsEspToggle, getSelfChamsEsp, setSelfChamsEsp = createToggle(selfEspSection, "Chams ESP", Settings.Visuals.SelfESP.ChamsESP, function(value)
+    Settings.Visuals.SelfESP.ChamsESP = value
+end)
+local selfChamsEspColorPicker, getSelfChamsEspColor, setSelfChamsEspColor = createColorPicker(selfEspSection, "Chams Color", Settings.Visuals.SelfESP.ChamsESPColor, function(color)
+    Settings.Visuals.SelfESP.ChamsESPColor = color
+end)
+local selfChamsGlowToggle, getSelfChamsGlow, setSelfChamsGlow = createToggle(selfEspSection, "Chams Glow", Settings.Visuals.SelfESP.ChamsGlow, function(value)
+    Settings.Visuals.SelfESP.ChamsGlow = value
+end)
+local selfChamsGlowColorPicker, getSelfChamsGlowColor, setSelfChamsGlowColor = createColorPicker(selfEspSection, "Chams Glow Color", Settings.Visuals.SelfESP.ChamsGlowColor, function(color)
+    Settings.Visuals.SelfESP.ChamsGlowColor = color
+end)
+
+local selfEspGlowIntensitySlider, getSelfESPGlowIntensity, setSelfESPGlowIntensity = createSlider(selfEspSection, "Glow Intensity", 0, 100, Settings.Visuals.SelfESP.GlowIntensity, 1, function(value)
+    Settings.Visuals.SelfESP.GlowIntensity = value
+end)
+
+-- World Tab
+local ambienceColorToggle, getAmbienceColor, setAmbienceColor = createToggle(worldSection, "Ambience Color", Settings.Visuals.World.AmbienceColor, function(value)
+    Settings.Visuals.World.AmbienceColor = value
+    Lighting.Ambient = value and Settings.Visuals.World.AmbienceColorValue or Color3.fromRGB(0,0,0) -- Example application
+end)
+local ambienceColorValuePicker, getAmbienceColorValue, setAmbienceColorValue = createColorPicker(worldSection, "Ambience Color Value", Settings.Visuals.World.AmbienceColorValue, function(color)
+    Settings.Visuals.World.AmbienceColorValue = color
+    if Settings.Visuals.World.AmbienceColor then Lighting.Ambient = color end
+end)
+local ambienceGlowToggle, getAmbienceGlow, setAmbienceGlow = createToggle(worldSection, "Ambience Glow", Settings.Visuals.World.AmbienceGlow, function(value)
+    Settings.Visuals.World.AmbienceGlow = value
+end)
+local ambienceGlowColorPicker, getAmbienceGlowColor, setAmbienceGlowColor = createColorPicker(worldSection, "Ambience Glow Color", Settings.Visuals.World.AmbienceGlowColor, function(color)
+    Settings.Visuals.World.AmbienceGlowColor = color
+end)
+
+local buildingColorToggle, getBuildingColor, setBuildingColor = createToggle(worldSection, "Building Color", Settings.Visuals.World.BuildingColor, function(value)
+    Settings.Visuals.World.BuildingColor = value
+    -- This would require iterating through all parts, more complex example
+end)
+local buildingColorValuePicker, getBuildingColorValue, setBuildingColorValue = createColorPicker(worldSection, "Building Color Value", Settings.Visuals.World.BuildingColorValue, function(color)
+    Settings.Visuals.World.BuildingColorValue = color
+end)
+local buildingGlowToggle, getBuildingGlow, setBuildingGlow = createToggle(worldSection, "Building Glow", Settings.Visuals.World.BuildingGlow, function(value)
+    Settings.Visuals.World.BuildingGlow = value
+end)
+local buildingGlowColorPicker, getBuildingGlowColor, setBuildingGlowColor = createColorPicker(worldSection, "Building Glow Color", Settings.Visuals.World.BuildingGlowColor, function(color)
+    Settings.Visuals.World.BuildingGlowColor = color
+end)
+
+local fogColorToggle, getFogColor, setFogColor = createToggle(worldSection, "Fog Color", Settings.Visuals.World.FogColor, function(value)
+    Settings.Visuals.World.FogColor = value
+    Lighting.FogColor = value and Settings.Visuals.World.FogColorValue or Color3.fromRGB(0,0,0)
+end)
+local fogColorValuePicker, getFogColorValue, setFogColorValue = createColorPicker(worldSection, "Fog Color Value", Settings.Visuals.World.FogColorValue, function(color)
+    Settings.Visuals.World.FogColorValue = color
+    if Settings.Visuals.World.FogColor then Lighting.FogColor = color end
+end)
+local fogStartSlider, getFogStart, setFogStart = createSlider(worldSection, "Fog Start", 0, 1000, Settings.Visuals.World.FogStart, 1, function(value)
+    Settings.Visuals.World.FogStart = value
+    Lighting.FogStart = value
+end)
+local fogEndSlider, getFogEnd, setFogEnd = createSlider(worldSection, "Fog End", 0, 5000, Settings.Visuals.World.FogEnd, 10, function(value)
+    Settings.Visuals.World.FogEnd = value
+    Lighting.FogEnd = value
+end)
+local fogGlowToggle, getFogGlow, setFogGlow = createToggle(worldSection, "Fog Glow", Settings.Visuals.World.FogGlow, function(value)
+    Settings.Visuals.World.FogGlow = value
+end)
+local fogGlowColorPicker, getFogGlowColor, setFogGlowColor = createColorPicker(worldSection, "Fog Glow Color", Settings.Visuals.World.FogGlowColor, function(color)
+    Settings.Visuals.World.FogGlowColor = color
+end)
+
+local screenColorToggle, getScreenColor, setScreenColor = createToggle(worldSection, "Screen Color", Settings.Visuals.World.ScreenColor, function(value)
+    Settings.Visuals.World.ScreenColor = value
+end)
+local screenColorValuePicker, getScreenColorValue, setScreenColorValue = createColorPicker(worldSection, "Screen Color Value", Settings.Visuals.World.ScreenColorValue, function(color)
+    Settings.Visuals.World.ScreenColorValue = color
+end)
+
+-- Effects Tab
+local snowflakesToggle, getSnowFlakes, setSnowFlakes = createToggle(effectsSection, "Snowflakes", Settings.Visuals.Effects.SnowFlakes, function(value)
+    Settings.Visuals.Effects.SnowFlakes = value
+    -- Implement snowflake effect here
+end)
+local helloKittyToggle, getHelloKitty, setHelloKitty = createToggle(effectsSection, "Hello Kitty", Settings.Visuals.Effects.HelloKitty, function(value)
+    Settings.Visuals.Effects.HelloKitty = value
+    -- Implement Hello Kitty effect here
+end)
+
+local selfBulletTracerToggle, getSelfBulletTracer, setSelfBulletTracer = createToggle(effectsSection, "Self Bullet Tracer", Settings.Visuals.Effects.SelfBulletTracer, function(value)
+    Settings.Visuals.Effects.SelfBulletTracer = value
+end)
+local selfBulletTracerColorPicker, getSelfBulletTracerColor, setSelfBulletTracerColor = createColorPicker(effectsSection, "Self Tracer Color", Settings.Visuals.Effects.SelfBulletTracerColor, function(color)
+    Settings.Visuals.Effects.SelfBulletTracerColor = color
+end)
+local enemyBulletTracerToggle, getEnemyBulletTracer, setEnemyBulletTracer = createToggle(effectsSection, "Enemy Bullet Tracer", Settings.Visuals.Effects.EnemyBulletTracer, function(value)
+    Settings.Visuals.Effects.EnemyBulletTracer = value
+end)
+local enemyBulletTracerColorPicker, getEnemyBulletTracerColor, setEnemyBulletTracerColor = createColorPicker(effectsSection, "Enemy Tracer Color", Settings.Visuals.Effects.EnemyBulletTracerColor, function(color)
+    Settings.Visuals.Effects.EnemyBulletTracerColor = color
+end)
+local bulletStartSizeSlider, getBulletStartSize, setBulletStartSize = createSlider(effectsSection, "Bullet Start Size", 0, 10, Settings.Visuals.Effects.BulletStartSize, 0.1, function(value)
+    Settings.Visuals.Effects.BulletStartSize = value
+end)
+local bulletEndSizeSlider, getBulletEndSize, setBulletEndSize = createSlider(effectsSection, "Bullet End Size", 0, 10, Settings.Visuals.Effects.BulletEndSize, 0.1, function(value)
+    Settings.Visuals.Effects.BulletEndSize = value
+end)
+local bulletDurationSlider, getBulletDuration, setBulletDuration = createSlider(effectsSection, "Bullet Duration", 0, 5, Settings.Visuals.Effects.BulletDuration, 0.1, function(value)
+    Settings.Visuals.Effects.BulletDuration = value
+end)
+
+local hitSkeletonToggle, getHitSkeleton, setHitSkeleton = createToggle(effectsSection, "Hit Skeleton", Settings.Visuals.Effects.HitSkeleton, function(value)
+    Settings.Visuals.Effects.HitSkeleton = value
+end)
+local hitSkeletonColorPicker, getHitSkeletonColor, setHitSkeletonColor = createColorPicker(effectsSection, "Hit Skeleton Color", Settings.Visuals.Effects.HitSkeletonColor, function(color)
+    Settings.Visuals.Effects.HitSkeletonColor = color
+end)
+local hitSkeletonGlowToggle, getHitSkeletonGlow, setHitSkeletonGlow = createToggle(effectsSection, "Hit Skeleton Glow", Settings.Visuals.Effects.HitSkeletonGlow, function(value)
+    Settings.Visuals.Effects.HitSkeletonGlow = value
+end)
+local hitSkeletonGlowColorPicker, getHitSkeletonGlowColor, setHitSkeletonGlowColor = createColorPicker(effectsSection, "Hit Skeleton Glow Color", Settings.Visuals.Effects.HitSkeletonGlowColor, function(color)
+    Settings.Visuals.Effects.HitSkeletonGlowColor = color
+end)
+
+local crosshairToggle, getCrosshair, setCrosshair = createToggle(effectsSection, "Custom Crosshair", Settings.Visuals.Effects.Crosshair, function(value)
+    Settings.Visuals.Effects.Crosshair = value
+    -- Implement crosshair drawing here
+    if value then
+        if not Crosshair then
+            Crosshair = create("Frame", {
+                Name = "CustomCrosshair",
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0, Settings.Visuals.Effects.CrosshairSize * 2 + Settings.Visuals.Effects.CrosshairGap * 2, 0, Settings.Visuals.Effects.CrosshairSize * 2 + Settings.Visuals.Effects.CrosshairGap * 2),
+                Position = UDim2.new(0.5, 0, 0.5, 0),
+                ZIndex = 3,
+                Parent = screenGui
+            })
+
+            -- Horizontal line
+            create("Frame", {
+                BackgroundColor3 = Settings.Visuals.Effects.CrosshairColor,
+                BorderSizePixel = 0,
+                Size = UDim2.new(0, Settings.Visuals.Effects.CrosshairSize, 0, 1),
+                Position = UDim2.new(0.5, -(Settings.Visuals.Effects.CrosshairSize / 2) - Settings.Visuals.Effects.CrosshairGap, 0.5, 0),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Parent = Crosshair
+            })
+            create("Frame", {
+                BackgroundColor3 = Settings.Visuals.Effects.CrosshairColor,
+                BorderSizePixel = 0,
+                Size = UDim2.new(0, Settings.Visuals.Effects.CrosshairSize, 0, 1),
+                Position = UDim2.new(0.5, (Settings.Visuals.Effects.CrosshairSize / 2) + Settings.Visuals.Effects.CrosshairGap, 0.5, 0),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Parent = Crosshair
+            })
+
+            -- Vertical line
+            create("Frame", {
+                BackgroundColor3 = Settings.Visuals.Effects.CrosshairColor,
+                BorderSizePixel = 0,
+                Size = UDim2.new(0, 1, 0, Settings.Visuals.Effects.CrosshairSize),
+                Position = UDim2.new(0.5, 0, 0.5, -(Settings.Visuals.Effects.CrosshairSize / 2) - Settings.Visuals.Effects.CrosshairGap),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Parent = Crosshair
+            })
+            create("Frame", {
+                BackgroundColor3 = Settings.Visuals.Effects.CrosshairColor,
+                BorderSizePixel = 0,
+                Size = UDim2.new(0, 1, 0, Settings.Visuals.Effects.CrosshairSize),
+                Position = UDim2.new(0.5, 0, 0.5, (Settings.Visuals.Effects.CrosshairSize / 2) + Settings.Visuals.Effects.CrosshairGap),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Parent = Crosshair
+            })
+
+        else
+            Crosshair.Visible = true
+        end
+    else
+        if Crosshair then Crosshair.Visible = false end
+    end
+end)
+
+local crosshairColorPicker, getCrosshairColor, setCrosshairColor = createColorPicker(effectsSection, "Crosshair Color", Settings.Visuals.Effects.CrosshairColor, function(color)
+    Settings.Visuals.Effects.CrosshairColor = color
+    if Crosshair then
+        for _, child in ipairs(Crosshair:GetChildren()) do
+            if child:IsA("Frame") then
+                child.BackgroundColor3 = color
+            end
+        end
+    end
+end)
+local crosshairOutlineToggle, getCrosshairOutline, setCrosshairOutline = createToggle(effectsSection, "Crosshair Outline", Settings.Visuals.Effects.CrosshairOutline, function(value)
+    Settings.Visuals.Effects.CrosshairOutline = value
+    -- Implement crosshair outline here
+end)
+local crosshairOutlineColorPicker, getCrosshairOutlineColor, setCrosshairOutlineColor = createColorPicker(effectsSection, "Outline Color", Settings.Visuals.Effects.CrosshairOutlineColor, function(color)
+    Settings.Visuals.Effects.CrosshairOutlineColor = color
+end)
+local crosshairGapSlider, getCrosshairGap, setCrosshairGap = createSlider(effectsSection, "Crosshair Gap", 0, 20, Settings.Visuals.Effects.CrosshairGap, 1, function(value)
+    Settings.Visuals.Effects.CrosshairGap = value
+    -- Update crosshair visual
+end)
+local crosshairSizeSlider, getCrosshairSize, setCrosshairSize = createSlider(effectsSection, "Crosshair Size", 5, 50, Settings.Visuals.Effects.CrosshairSize, 1, function(value)
+    Settings.Visuals.Effects.CrosshairSize = value
+    -- Update crosshair visual
+end)
+local crosshairSpinToggle, getCrosshairSpin, setCrosshairSpin = createToggle(effectsSection, "Crosshair Spin", Settings.Visuals.Effects.CrosshairSpin, function(value)
+    Settings.Visuals.Effects.CrosshairSpin = value
+    -- Implement crosshair spin animation
+end)
+local crosshairSpinSpeedSlider, getCrosshairSpinSpeed, setCrosshairSpinSpeed = createSlider(effectsSection, "Spin Speed", 1, 10, Settings.Visuals.Effects.CrosshairSpinSpeed, 1, function(value)
+    Settings.Visuals.Effects.CrosshairSpinSpeed = value
+end)
+
+-- Misc Tab
+local miscPage = tabPages[3].page
+local miscSubTabs = createSubTabs(miscPage, {"Movement", "Anti-Aim", "Player Fun", "World Fun"})
+local miscMovementTab = miscSubTabs[1].page
+local miscAntiAimTab = miscSubTabs[2].page
+local miscPlayerFunTab = miscSubTabs[3].page
+local miscWorldFunTab = miscSubTabs[4].page
+
+local flySection = createSection(miscMovementTab, "Fly Settings", UDim2.new(0,0,0,0), UDim2.new(1,0,0,150))
+local speedSection = createSection(miscMovementTab, "Speed Settings", UDim2.new(0,0,0,160), UDim2.new(1,0,0,180))
+
+local antiAimSection = createSection(miscAntiAimTab, "Anti-Aim Settings", UDim2.new(0,0,0,0), UDim2.new(1,0,0,180))
+
+local playersSection = createSection(miscPlayerFunTab, "Player Interaction", UDim2.new(0,0,0,0), UDim2.new(1,0,0,200))
+
+local funSection = createSection(miscWorldFunTab, "Fun Features", UDim2.new(0,0,0,0), UDim2.new(1,0,0,250))
+
+-- Movement Tab
+local flyEnableToggle, getFlyEnable, setFlyEnable = createToggleWithHotkey(flySection, "Enable Fly", Settings.Misc.Fly.Enable, function(value, hotkey)
+    Settings.Misc.Fly.Enable = value
+    Settings.Misc.Fly.Hotkey = hotkey
+    -- Implement fly functionality
+end)
+local flySpeedSlider, getFlySpeed, setFlySpeed = createSlider(flySection, "Fly Speed", 5, 100, Settings.Misc.Fly.Speed, 1, function(value)
+    Settings.Misc.Fly.Speed = value
+end)
+local flyTypeDropdown, getFlyType, setFlyType = createDropdown(flySection, "Fly Type", {"Normal", "Noclip"}, Settings.Misc.Fly.Type, function(value)
+    Settings.Misc.Fly.Type = value
+end)
+
+local speedEnableToggle, getSpeedEnable, setSpeedEnable = createToggleWithHotkey(speedSection, "Enable Speed", Settings.Misc.Speed.Enable, function(value, hotkey)
+    Settings.Misc.Speed.Enable = value
+    Settings.Misc.Speed.Hotkey = hotkey
+    -- Implement speed functionality
+end)
+local speedAmountSlider, getSpeedAmount, setSpeedAmount = createSlider(speedSection, "Speed Amount", 5, 100, Settings.Misc.Speed.Amount, 1, function(value)
+    Settings.Misc.Speed.Amount = value
+end)
+local speedTypeDropdown, getSpeedType, setSpeedType = createDropdown(speedSection, "Speed Type", {"Legit", "Bhop", "Sprint"}, Settings.Misc.Speed.Type, function(value)
+    Settings.Misc.Speed.Type = value
+end)
+local legitSlideAmountSlider, getLegitSlideAmount, setLegitSlideAmount = createSlider(speedSection, "Legit Slide Amount", 0, 50, Settings.Misc.Speed.LegitSlideAmount, 1, function(value)
+    Settings.Misc.Speed.LegitSlideAmount = value
+end)
+
+-- Anti-Aim Tab
+local antiAimEnableToggle, getAntiAimEnable, setAntiAimEnable = createToggleWithHotkey(antiAimSection, "Enable Anti-Aim", Settings.Misc.AntiAim.Enable, function(value, hotkey)
+    Settings.Misc.AntiAim.Enable = value
+    Settings.Misc.AntiAim.Hotkey = hotkey
+    -- Implement anti-aim logic
+end)
+local antiAimPitchDropdown, getAntiAimPitch, setAntiAimPitch = createDropdown(antiAimSection, "Pitch", {"Normal", "Up", "Down", "Zero", "Jitter"}, Settings.Misc.AntiAim.Pitch, function(value)
+    Settings.Misc.AntiAim.Pitch = value
+end)
+local antiAimYawDropdown, getAntiAimYaw, setAntiAimYaw = createDropdown(antiAimSection, "Yaw", {"Normal", "Left", "Right", "Back", "Spin", "Jitter"}, Settings.Misc.AntiAim.Yaw, function(value)
+    Settings.Misc.AntiAim.Yaw = value
+end)
+local antiAimSpinSpeedSlider, getAntiAimSpinSpeed, setAntiAimSpinSpeed = createSlider(antiAimSection, "Spin Speed", 1, 20, Settings.Misc.AntiAim.SpinSpeed, 1, function(value)
+    Settings.Misc.AntiAim.SpinSpeed = value
+end)
+local antiAimJitterAmountSlider, getAntiAimJitterAmount, setAntiAimJitterAmount = createSlider(antiAimSection, "Jitter Amount", 0, 180, Settings.Misc.AntiAim.JitterAmount, 1, function(value)
+    Settings.Misc.AntiAim.JitterAmount = value
+end)
+
+-- Player Fun Tab
+local spectatePlayerDropdown, getSpectatePlayer, setSpectatePlayer = createDropdown(playersSection, "Spectate Player", {}, nil, function(value)
+    Settings.Misc.Players.Spectate = value
+    -- Implement spectate functionality
+end)
+local teleportPlayerDropdown, getTeleportPlayer, setTeleportPlayer = createDropdown(playersSection, "Teleport Player To", {}, nil, function(value)
+    Settings.Misc.Players.Teleport = value
+    -- Implement teleport functionality
+end)
+local flingPlayerDropdown, getFlingPlayer, setFlingPlayer = createDropdown(playersSection, "Fling Player", {}, nil, function(value)
+    Settings.Misc.Players.Fling = value
+    -- Implement fling functionality
+end)
+local teamCheckToggle, getTeamCheck, setTeamCheck = createToggle(playersSection, "Team Check", Settings.Misc.Players.TeamCheck, function(value)
+    Settings.Misc.Players.TeamCheck = value
+end)
+local onlyEnemiesToggle, getOnlyEnemies, setOnlyEnemies = createToggle(playersSection, "Only Enemies", Settings.Misc.Players.OnlyEnemies, function(value)
+    Settings.Misc.Players.OnlyEnemies = value
+end)
+
+-- Update player dropdowns
+Players.PlayerAdded:Connect(function(newPlayer)
+    if newPlayer ~= player then
+        -- You'll need to re-populate the dropdowns or add/remove options dynamically
+        -- This is a placeholder; actual implementation depends on how you want to manage dropdown lists
+    end
+end)
+Players.PlayerRemoving:Connect(function(oldPlayer)
+    -- Same as above for removing players
+end)
+
+-- World Fun Tab
+local infiniteJumpToggle, getInfiniteJump, setInfiniteJump = createToggle(funSection, "Infinite Jump", Settings.Misc.Fun.InfiniteJump, function(value)
+    Settings.Misc.Fun.InfiniteJump = value
+    if value then
+        local oldJumpPower = player.Character and player.Character.Humanoid and player.Character.Humanoid.JumpPower
+        local jumpBind = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if input.KeyCode == Enum.KeyCode.Space and not gameProcessed and Settings.Misc.Fun.InfiniteJump then
+                if player.Character and player.Character.Humanoid then
+                    player.Character.Humanoid.Jump = true
+                end
+            end
+        end)
+        player.CharacterAdded:Connect(function(char)
+            char:WaitForChild("Humanoid").JumpPower = oldJumpPower -- Restore jump power on respawn
+        end)
+    else
+        -- Disconnect JumpBind and restore JumpPower if needed
+    end
+end)
+
+local noClipToggle, getNoClip, setNoClip = createToggle(funSection, "No Clip", Settings.Misc.Fun.NoClip, function(value)
+    Settings.Misc.Fun.NoClip = value
+    -- Implement Noclip here (e.g., set CanCollide to false for character parts)
+end)
+local noFallDamageToggle, getNoFallDamage, setNoFallDamage = createToggle(funSection, "No Fall Damage", Settings.Misc.Fun.NoFallDamage, function(value)
+    Settings.Misc.Fun.NoFallDamage = value
+    -- Implement No Fall Damage (e.g., hook into Humanoid.Died and check fall damage reason)
+end)
+local fastPlaceToggle, getFastPlace, setFastPlace = createToggle(funSection, "Fast Place", Settings.Misc.Fun.FastPlace, function(value)
+    Settings.Misc.Fun.FastPlace = value
+    -- Implement fast place (if applicable to the game)
+end)
+local clickTeleportToggle, getClickTeleport, setClickTeleport = createToggleWithHotkey(funSection, "Click Teleport", Settings.Misc.Fun.ClickTeleport, function(value, hotkey)
+    Settings.Misc.Fun.ClickTeleport = value
+    Settings.Misc.Fun.ClickTeleportHotkey = hotkey
+    -- Implement click teleport
+end)
+
+local timeOfDayDropdown, getTimeOfDay, setTimeOfDay = createDropdown(funSection, "Time of Day", {"Day", "Night", "Custom"}, Settings.Misc.Fun.TimeOfDay, function(value)
+    Settings.Misc.Fun.TimeOfDay = value
+    if value == "Day" then
+        Lighting.TimeOfDay = "14:00:00"
+    elseif value == "Night" then
+        Lighting.TimeOfDay = "02:00:00"
+    end
+end)
+local customTimeSlider, getCustomTime, setCustomTime = createSlider(funSection, "Custom Time", 0, 24, Settings.Misc.Fun.CustomTime, 1, function(value)
+    Settings.Misc.Fun.CustomTime = value
+    if Settings.Misc.Fun.TimeOfDay == "Custom" then
+        Lighting.TimeOfDay = tostring(math.floor(value)) .. ":00:00"
+    end
+end)
+
+local fovChangerToggle, getFOVChanger, setFOVChanger = createToggle(funSection, "FOV Changer", Settings.Misc.Fun.FOVChanger, function(value)
+    Settings.Misc.Fun.FOVChanger = value
+    if value then
+        camera.FieldOfView = Settings.Misc.Fun.FOVValue
+    else
+        camera.FieldOfView = 70 -- Default Roblox FOV
+    end
+end)
+local fovValueSlider, getFOVValue, setFOVValue = createSlider(funSection, "FOV Value", 30, 120, Settings.Misc.Fun.FOVValue, 1, function(value)
+    Settings.Misc.Fun.FOVValue = value
+    if Settings.Misc.Fun.FOVChanger then
+        camera.FieldOfView = value
+    end
+end)
+
+-- Settings Tab
+local settingsPage = tabPages[4].page
+local settingsSubTabs = createSubTabs(settingsPage, {"UI", "Config"})
+local settingsUITab = settingsSubTabs[1].page
+local settingsConfigTab = settingsSubTabs[2].page
+
+local uiSection = createSection(settingsUITab, "UI Settings", UDim2.new(0,0,0,0), UDim2.new(1,0,0,200))
+local configSection = createSection(settingsConfigTab, "Configuration", UDim2.new(0,0,0,0), UDim2.new(1,0,0,250))
+
+-- UI Settings
+local uiFontDropdown, getUIFont, setUIFont = createDropdown(uiSection, "UI Font", {"Gotham", "GothamSemibold", "SourceSans", "Arial"}, Settings.Settings.UI.Font.Name, function(value)
+    local enumValue = Enum.Font[value]
+    if enumValue then
+        Theme.Font = enumValue
+        Settings.Settings.UI.Font = enumValue
+        -- Reapply font to all text labels (complex, might require a refresh function or manual update)
+        -- For simplicity, this is just updating the setting
+    end
+end)
+local backgroundTransparencySlider, getBackgroundTransparency, setBackgroundTransparency = createSlider(uiSection, "Background Transparency", 0, 100, Settings.Settings.UI.BackgroundTransparency, 1, function(value)
+    Settings.Settings.UI.BackgroundTransparency = value
+    indent.BackgroundTransparency = value / 100
+    main.BackgroundTransparency = value / 100
+    tabs.BackgroundTransparency = value / 100
+    tabContent.BackgroundTransparency = value / 100
+    -- Apply transparency to other background elements as well
+end)
+local showWatermarkToggle, getShowWatermark, setShowWatermark = createToggle(uiSection, "Show Watermark", Settings.Settings.UI.ShowWatermark, function(value)
+    Settings.Settings.UI.ShowWatermark = value
+    Settings.ShowWatermark = value -- Update top-level setting
+    -- Implement watermark display
+end)
+local showNotificationsToggle, getShowNotifications, setShowNotifications = createToggle(uiSection, "Show Notifications", Settings.Settings.UI.ShowNotifications, function(value)
+    Settings.Settings.UI.ShowNotifications = value
+    Settings.ShowNotifications = value -- Update top-level setting
+    -- Implement notification display
+end)
+local openHotkeyToggle, getOpenHotkey, setOpenHotkey = createToggleWithHotkey(uiSection, "Open/Close Hotkey", Settings.Settings.UI.OpenHotkey, function(value, hotkey)
+    Settings.Settings.UI.OpenHotkey = hotkey
+    -- Implement hotkey listening for GUI toggle
+end)
+local saveConfigOnExitToggle, getSaveConfigOnExit, setSaveConfigOnExit = createToggle(uiSection, "Save Config on Exit", Settings.Settings.UI.SaveConfigOnExit, function(value)
+    Settings.Settings.UI.SaveConfigOnExit = value
+    -- Implement config saving on game exit
+end)
+local loadConfigOnJoinToggle, getLoadConfigOnJoin, setLoadConfigOnJoin = createToggle(uiSection, "Load Config on Join", Settings.Settings.UI.LoadConfigOnJoin, function(value)
+    Settings.Settings.UI.LoadConfigOnJoin = value
+    -- Implement config loading on game join
+end)
+
+-- Config Settings
+local configNameTextbox, getConfigName, setConfigName = createTextBox(configSection, "Config Name", Settings.Settings.Config.Current, function(value)
+    Settings.Settings.Config.Current = value
+end)
+
+local saveConfigButton = createButton(configSection, "Save Config", function()
+    local configData = HttpService:JSONEncode(Settings)
+    -- You would typically save this to a file or remote storage using a robust method,
+    -- but for a client-side exploit, you might use HttpService to a webserver or local file system (if available in your executor)
+    warn("Config saved (conceptually): " .. configData)
+    if not table.find(Settings.Settings.Config.List, Settings.Settings.Config.Current) then
+        table.insert(Settings.Settings.Config.List, Settings.Settings.Config.Current)
+        -- Update dropdown for loading configs if implemented
+    end
+end)
+
+local loadConfigDropdown, getLoadConfig, setLoadConfig = createDropdown(configSection, "Load Config", Settings.Settings.Config.List, Settings.Settings.Config.Current, function(value)
+    -- Load config logic here (e.g., fetch from storage, parse JSON, apply settings)
+    -- This is highly dependent on your executor's capabilities for reading/writing files or network requests.
+    warn("Attempting to load config: " .. value)
+    -- Placeholder:
+    -- local loadedSettings = HttpService:JSONDecode(loadedData)
+    -- for k, v in pairs(loadedSettings) do Settings[k] = v end
+    -- Then, re-apply all GUI component values based on loadedSettings
+end)
+
+local deleteConfigButton = createButton(configSection, "Delete Selected Config", function()
+    local currentConfig = Settings.Settings.Config.Current
+    local index = table.find(Settings.Settings.Config.List, currentConfig)
+    if index then
+        table.remove(Settings.Settings.Config.List, index)
+        Settings.Settings.Config.Current = "Default"
+        if #Settings.Settings.Config.List == 0 then
+            table.insert(Settings.Settings.Config.List, "Default")
+        end
+        -- Update dropdown for loading configs and default to "Default"
+        setConfigName("Default")
+        setLoadConfig("Default")
+        warn("Config deleted: " .. currentConfig)
+    end
+end)
+
+-- Make the main GUI draggable
+makeDraggable(outline, titleBar)
+
+-- UI Toggle Keybind
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if input.KeyCode == Settings.Settings.UI.OpenHotkey and not gameProcessedEvent then
+        screenGui.Enabled = not screenGui.Enabled
+    end
+end)
+
+-- Run-time logic for features (simplified examples)
+RunService.RenderStepped:Connect(function()
+    -- Update glow effect visibility and color
+    glowEffect.Visible = Settings.GlowEnabled
+    glowEffect.ImageColor3 = Theme.GlowColor
+    glowEffect.ImageTransparency = 1 - Theme.GlowIntensity
+
+    -- Watermark (example)
+    if Settings.ShowWatermark then
+        if not screenGui:FindFirstChild("Watermark") then
+            local watermark = create("TextLabel", {
+                Name = "Watermark",
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0.01, 0, 0.01, 0),
+                Size = UDim2.new(0, 200, 0, 20),
+                Text = "EnhancedPupyyware",
+                Font = Theme.Font,
+                TextColor3 = Theme.WatermarkColor,
+                TextSize = 15,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextStrokeTransparency = 0,
+                Parent = screenGui
+            })
+        end
+        screenGui.Watermark.Visible = true
+        screenGui.Watermark.TextColor3 = Theme.WatermarkColor
+    else
+        if screenGui:FindFirstChild("Watermark") then
+            screenGui.Watermark.Visible = false
+        end
+    end
+
+    -- FOV Circles
+    if Settings.Combat.UseFOV and Settings.Combat.DrawFOV then
+        if not FOVCircle then
+            FOVCircle = create("Frame", {
+                Name = "FOVCircle",
+                BackgroundTransparency = 1,
+                BorderSizePixel = 0,
+                ZIndex = 2,
+                Parent = screenGui
+            })
+            local circle = create("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = FOVCircle })
+            local fill = create("Frame", {
+                Name = "Fill",
+                BackgroundColor3 = Settings.Combat.FOVFillColor,
+                BackgroundTransparency = Settings.Combat.FOVFillTransparency / 100,
+                Size = UDim2.new(1, 0, 1, 0),
+                ZIndex = 2,
+                Parent = FOVCircle
+            })
+            local outline = create("Frame", {
+                Name = "Outline",
+                BackgroundColor3 = Settings.Combat.FOVOutlineColor,
+                BackgroundTransparency = Settings.Combat.FOVOutlineTransparency / 100,
+                Size = UDim2.new(1, 2, 1, 2), -- slightly larger for outline
+                Position = UDim2.new(0.5, -1, 0.5, -1),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                ZIndex = 1,
+                Parent = FOVCircle
+            })
+            create("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = fill })
+            create("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = outline })
+        end
+        FOVCircle.Visible = true
+        FOVCircle.Size = UDim2.new(0, Settings.Combat.FOVSize * 2, 0, Settings.Combat.FOVSize * 2)
+        FOVCircle.Position = UDim2.new(0.5, -Settings.Combat.FOVSize, 0.5, -Settings.Combat.FOVSize)
+        FOVCircle.Fill.BackgroundColor3 = Settings.Combat.FOVFillColor
+        FOVCircle.Fill.BackgroundTransparency = Settings.Combat.FOVFillTransparency / 100
+        FOVCircle.Fill.Visible = Settings.Combat.FillFOV
+        FOVCircle.Outline.BackgroundColor3 = Settings.Combat.FOVOutlineColor
+        FOVCircle.Outline.BackgroundTransparency = Settings.Combat.FOVOutlineTransparency / 100
+    else
+        if FOVCircle then FOVCircle.Visible = false end
+    end
+
+    if Settings.Combat.SilentAim.UseFOV and Settings.Combat.SilentAim.DrawFOV then
+        if not SilentFOVCircle then
+            SilentFOVCircle = create("Frame", {
+                Name = "SilentFOVCircle",
+                BackgroundTransparency = 1,
+                BorderSizePixel = 0,
+                ZIndex = 2,
+                Parent = screenGui
+            })
+            local circle = create("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = SilentFOVCircle })
+            local fill = create("Frame", {
+                Name = "Fill",
+                BackgroundColor3 = Settings.Combat.SilentAim.FOVFillColor,
+                BackgroundTransparency = Settings.Combat.SilentAim.FOVFillTransparency / 100,
+                Size = UDim2.new(1, 0, 1, 0),
+                ZIndex = 2,
+                Parent = SilentFOVCircle
+            })
+            local outline = create("Frame", {
+                Name = "Outline",
+                BackgroundColor3 = Settings.Combat.SilentAim.FOVOutlineColor,
+                BackgroundTransparency = Settings.Combat.SilentAim.FOVOutlineTransparency / 100,
+                Size = UDim2.new(1, 2, 1, 2), -- slightly larger for outline
+                Position = UDim2.new(0.5, -1, 0.5, -1),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                ZIndex = 1,
+                Parent = SilentFOVCircle
+            })
+            create("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = fill })
+            create("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = outline })
+        end
+        SilentFOVCircle.Visible = true
+        SilentFOVCircle.Size = UDim2.new(0, Settings.Combat.SilentAim.FOVSize * 2, 0, Settings.Combat.SilentAim.FOVSize * 2)
+        SilentFOVCircle.Position = UDim2.new(0.5, -Settings.Combat.SilentAim.FOVSize, 0.5, -Settings.Combat.SilentAim.FOVSize)
+        SilentFOVCircle.Fill.BackgroundColor3 = Settings.Combat.SilentAim.FOVFillColor
+        SilentFOVCircle.Fill.BackgroundTransparency = Settings.Combat.SilentAim.FOVFillTransparency / 100
+        SilentFOVCircle.Fill.Visible = Settings.Combat.SilentAim.FillFOV
+        SilentFOVCircle.Outline.BackgroundColor3 = Settings.Combat.SilentAim.FOVOutlineColor
+        SilentFOVCircle.Outline.BackgroundTransparency = Settings.Combat.SilentAim.FOVOutlineTransparency / 100
+    else
+        if SilentFOVCircle then SilentFOVCircle.Visible = false end
+    end
+
+    -- Crosshair update
+    if Crosshair and Settings.Visuals.Effects.Crosshair then
+        Crosshair.Size = UDim2.new(0, Settings.Visuals.Effects.CrosshairSize * 2 + Settings.Visuals.Effects.CrosshairGap * 2, 0, Settings.Visuals.Effects.CrosshairSize * 2 + Settings.Visuals.Effects.CrosshairGap * 2)
+        Crosshair.Position = UDim2.new(0.5, 0, 0.5, 0) -- Keep centered
+
+        local horizontalLines = {Crosshair:GetChildren()[1], Crosshair:GetChildren()[2]} -- Assuming order
+        local verticalLines = {Crosshair:GetChildren()[3], Crosshair:GetChildren()[4]}
+
+        if Settings.Visuals.Effects.CrosshairSpin then
+            Crosshair.Rotation = (Crosshair.Rotation + Settings.Visuals.Effects.CrosshairSpinSpeed) % 360
+        else
+            Crosshair.Rotation = 0
+        end
+
+        for i, hLine in ipairs(horizontalLines) do
+            hLine.Size = UDim2.new(0, Settings.Visuals.Effects.CrosshairSize, 0, 1)
+            hLine.BackgroundColor3 = Settings.Visuals.Effects.CrosshairColor
+            if Settings.Visuals.Effects.CrosshairOutline then
+                -- This would require additional frames for outlines
+            end
+        end
+        horizontalLines[1].Position = UDim2.new(0.5, -(Settings.Visuals.Effects.CrosshairSize / 2) - Settings.Visuals.Effects.CrosshairGap, 0.5, 0)
+        horizontalLines[2].Position = UDim2.new(0.5, (Settings.Visuals.Effects.CrosshairSize / 2) + Settings.Visuals.Effects.CrosshairGap, 0.5, 0)
+
+        for i, vLine in ipairs(verticalLines) do
+            vLine.Size = UDim2.new(0, 1, 0, Settings.Visuals.Effects.CrosshairSize)
+            vLine.BackgroundColor3 = Settings.Visuals.Effects.CrosshairColor
+            if Settings.Visuals.Effects.CrosshairOutline then
+                -- This would require additional frames for outlines
+            end
+        end
+        verticalLines[1].Position = UDim2.new(0.5, 0, 0.5, -(Settings.Visuals.Effects.CrosshairSize / 2) - Settings.Visuals.Effects.CrosshairGap)
+        verticalLines[2].Position = UDim2.new(0.5, 0, 0.5, (Settings.Visuals.Effects.CrosshairSize / 2) + Settings.Visuals.Effects.CrosshairGap)
+    end
+end)
+
+-- Main loop for game-specific logic (ESP, Aimbot, etc.)
+RunService.Heartbeat:Connect(function()
+    -- ESP Logic
+    if Settings.Visuals.ESP.Enable or Settings.Visuals.SelfESP.Enable then
+        for _, obj in pairs(ESPObjects) do
+            obj:Destroy()
+        end
+        ESPObjects = {}
+
+        local targets = {}
+        if Settings.Visuals.ESP.Enable then
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    table.insert(targets, p)
+                end
+            end
+        end
+        if Settings.Visuals.SelfESP.Enable and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            table.insert(targets, player)
+        end
+
+        for _, p in pairs(targets) do
+            local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local screenPos, onScreen = camera:WorldToScreenPoint(hrp.Position)
+                
+                local espSettings = (p == player) and Settings.Visuals.SelfESP or Settings.Visuals.ESP
+                local espColor = (p == player) and espSettings.BoxESPColor or espSettings.BoxESPColor -- Could be different colors for self/enemy
+                local outlineColor = (p == player) and espSettings.BoxGlowColor or espSettings.BoxGlowColor -- Example
+
+                -- Distance check
+                if (camera.CFrame.p - hrp.Position).magnitude > espSettings.Distance then continue end
+
+                if onScreen then
+                    local head = p.Character:FindFirstChild("Head")
+                    local torso = p.Character:FindFirstChild("Torso") or p.Character:FindFirstChild("UpperTorso")
+                    
+                    if head and torso then
+                        local headScreenPos, headOnScreen = camera:WorldToScreenPoint(head.Position)
+                        local feetScreenPos, feetOnScreen = camera:WorldToScreenPoint(hrp.Position - Vector3.new(0, hrp.Size.Y/2, 0))
+
+                        if headOnScreen and feetOnScreen then
+                            local height = math.abs(headScreenPos.Y - feetScreenPos.Y)
+                            local width = height * 0.5 -- Approximate
+                            local centerScreenX = screenPos.X
+                            local centerScreenY = screenPos.Y
+
+                            -- Box ESP
+                            if espSettings.BoxESP then
+                                local box = create("Frame", {
+                                    BackgroundTransparency = 1,
+                                    BorderSizePixel = 0,
+                                    Position = UDim2.new(0, centerScreenX - width/2, 0, centerScreenY - height/2),
+                                    Size = UDim2.new(0, width, 0, height),
+                                    Parent = screenGui
+                                })
+                                table.insert(ESPObjects, box)
+
+                                local border = create("Frame", {
+                                    BackgroundColor3 = espColor,
+                                    BackgroundTransparency = 0,
+                                    BorderSizePixel = 0,
+                                    Size = UDim2.new(1, 0, 1, 0),
+                                    Parent = box
+                                })
+                                local borderThickness = 1
+                                local inner = create("Frame", {
+                                    BackgroundColor3 = Color3.fromRGB(0,0,0), -- Black inner for outline effect
+                                    BackgroundTransparency = 0.5,
+                                    BorderSizePixel = 0,
+                                    Size = UDim2.new(1, -borderThickness*2, 1, -borderThickness*2),
+                                    Position = UDim2.new(0, borderThickness, 0, borderThickness),
+                                    Parent = border
+                                })
+                                table.insert(ESPObjects, box)
+                            end
+
+                            -- Name ESP
+                            if espSettings.NameESP then
+                                local nameLabel = create("TextLabel", {
+                                    BackgroundTransparency = 1,
+                                    Position = UDim2.new(0, centerScreenX, 0, headScreenPos.Y - 20),
+                                    Size = UDim2.new(0, 100, 0, 20),
+                                    Text = p.Name,
+                                    Font = Theme.Font,
+                                    TextColor3 = espSettings.NameESPColor,
+                                    TextSize = 12,
+                                    TextXAlignment = Enum.TextXAlignment.Center,
+                                    TextStrokeTransparency = espSettings.NameOutline and 0 or 1,
+                                    TextStrokeColor3 = Color3.fromRGB(0,0,0),
+                                    Parent = screenGui
+                                })
+                                nameLabel.Position = UDim2.new(0, headScreenPos.X - nameLabel.Size.X.Offset/2, 0, headScreenPos.Y - 20)
+                                table.insert(ESPObjects, nameLabel)
+                            end
+
+                            -- Health Bar ESP
+                            if espSettings.HealthBarESP then
+                                local humanoid = p.Character:FindFirstChildOfClass("Humanoid")
+                                if humanoid then
+                                    local healthRatio = humanoid.Health / humanoid.MaxHealth
+                                    local barHeight = height * healthRatio
+                                    local barWidth = 4
+                                    local barX = centerScreenX - width/2 - barWidth - 2 -- Left of box
+
+                                    local healthBarBG = create("Frame", {
+                                        BackgroundColor3 = espSettings.HealthBarBGColor,
+                                        BorderSizePixel = 0,
+                                        Position = UDim2.new(0, barX, 0, feetScreenPos.Y - height),
+                                        Size = UDim2.new(0, barWidth, 0, height),
+                                        Parent = screenGui
+                                    })
+                                    local healthBarFill = create("Frame", {
+                                        BackgroundColor3 = espSettings.HealthBarColor,
+                                        BorderSizePixel = 0,
+                                        Position = UDim2.new(0, 0, 1, -barHeight),
+                                        Size = UDim2.new(1, 0, 0, barHeight),
+                                        Parent = healthBarBG
+                                    })
+                                    table.insert(ESPObjects, healthBarBG)
+
+                                    if espSettings.HealthNumber then
+                                        local healthNumLabel = create("TextLabel", {
+                                            BackgroundTransparency = 1,
+                                            Position = UDim2.new(0, barX - 15, 0, feetScreenPos.Y - barHeight - 5),
+                                            Size = UDim2.new(0, 30, 0, 15),
+                                            Text = math.floor(humanoid.Health),
+                                            Font = Theme.Font,
+                                            TextColor3 = espSettings.HealthNumberColor,
+                                            TextSize = 10,
+                                            TextXAlignment = Enum.TextXAlignment.Right,
+                                            TextStrokeTransparency = 0,
+                                            Parent = screenGui
+                                        })
+                                        table.insert(ESPObjects, healthNumLabel)
+                                    end
+                                end
+                            end
+
+                            -- Distance ESP
+                            if espSettings.DistanceESP then
+                                local distanceLabel = create("TextLabel", {
+                                    BackgroundTransparency = 1,
+                                    Position = UDim2.new(0, centerScreenX, 0, feetScreenPos.Y + 5),
+                                    Size = UDim2.new(0, 100, 0, 20),
+                                    Text = tostring(math.floor((camera.CFrame.p - hrp.Position).magnitude)) .. "m",
+                                    Font = Theme.Font,
+                                    TextColor3 = espSettings.DistanceESPColor,
+                                    TextSize = 12,
+                                    TextXAlignment = Enum.TextXAlignment.Center,
+                                    TextStrokeTransparency = espSettings.DistanceOutline and 0 or 1,
+                                    TextStrokeColor3 = Color3.fromRGB(0,0,0),
+                                    Parent = screenGui
+                                })
+                                distanceLabel.Position = UDim2.new(0, feetScreenPos.X - distanceLabel.Size.X.Offset/2, 0, feetScreenPos.Y + 5)
+                                table.insert(ESPObjects, distanceLabel)
+                            end
+
+                            -- Skeleton ESP (simplified)
+                            if espSettings.SkeletonESP then
+                                local function drawLine(part1, part2, color, thickness, transparency)
+                                    local p1Pos, p1OnScreen = camera:WorldToScreenPoint(part1.Position)
+                                    local p2Pos, p2OnScreen = camera:WorldToScreenPoint(part2.Position)
+
+                                    if p1OnScreen and p2OnScreen then
+                                        local line = create("Frame", {
+                                            BackgroundColor3 = color,
+                                            BackgroundTransparency = transparency,
+                                            BorderSizePixel = 0,
+                                            Size = UDim2.new(0, (p1Pos - p2Pos).magnitude, 0, thickness),
+                                            Position = UDim2.new(0, (p1Pos.X + p2Pos.X) / 2, 0, (p1Pos.Y + p2Pos.Y) / 2),
+                                            Rotation = math.deg(math.atan2(p2Pos.Y - p1Pos.Y, p2Pos.X - p1Pos.X)),
+                                            AnchorPoint = Vector2.new(0.5, 0.5),
+                                            Parent = screenGui
+                                        })
+                                        table.insert(ESPObjects, line)
+                                    end
+                                end
+
+                                local character = p.Character
+                                local upperTorso = character:FindFirstChild("UpperTorso")
+                                local lowerTorso = character:FindFirstChild("LowerTorso")
+                                local headPart = character:FindFirstChild("Head")
+                                local leftArm = character:FindFirstChild("LeftUpperArm")
+                                local rightArm = character:FindFirstChild("RightUpperArm")
+                                local leftLeg = character:FindFirstChild("LeftUpperLeg")
+                                local rightLeg = character:FindFirstChild("RightUpperLeg")
+
+                                if headPart and upperTorso then
+                                    drawLine(headPart, upperTorso, espSettings.SkeletonESPColor, 1, 0)
+                                end
+                                if upperTorso and lowerTorso then
+                                    drawLine(upperTorso, lowerTorso, espSettings.SkeletonESPColor, 1, 0)
+                                end
+                                if upperTorso and leftArm then
+                                    drawLine(upperTorso, leftArm, espSettings.SkeletonESPColor, 1, 0)
+                                end
+                                if upperTorso and rightArm then
+                                    drawLine(upperTorso, rightArm, espSettings.SkeletonESPColor, 1, 0)
+                                end
+                                if lowerTorso and leftLeg then
+                                    drawLine(lowerTorso, leftLeg, espSettings.SkeletonESPColor, 1, 0)
+                                end
+                                if lowerTorso and rightLeg then
+                                    drawLine(lowerTorso, rightLeg, espSettings.SkeletonESPColor, 1, 0)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    else
+        for _, obj in pairs(ESPObjects) do
+            obj:Destroy()
+        end
+        ESPObjects = {}
+    end
+
+    -- Combat Logic (very simplified)
+    if Settings.Combat.Enable then
+        local target = nil
+        local smallestDistance = math.huge
+
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = p.Character.HumanoidRootPart
+                local distance = (player.Character.HumanoidRootPart.Position - hrp.Position).magnitude
+                if distance < smallestDistance then
+                    smallestDistance = distance
+                    target = p
+                end
+            end
+        end
+
+        currentTarget = target
+
+        if currentTarget and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            -- Aimbot (basic)
+            local targetPart = currentTarget.Character:FindFirstChild(Settings.Combat.HitPart) or currentTarget.Character:FindFirstChild("HumanoidRootPart")
+            if targetPart then
+                local targetPos = targetPart.Position
+
+                -- Prediction (very basic)
+                if Settings.Combat.UsePrediction and currentTarget.Character and currentTarget.Character:FindFirstChildOfClass("Humanoid") then
+                    local targetVelocity = currentTarget.Character.HumanoidRootPart.Velocity
+                    targetPos = targetPos + targetVelocity * (Settings.Combat.XPrediction / 100) -- Simple linear prediction
+                end
+
+                -- Smoothness (client-side CFrame adjustment for mouse)
+                if Settings.Combat.AimType == "Mouse" then
+                    local screenPoint, onScreen = camera:WorldToScreenPoint(targetPos)
+                    if onScreen then
+                        local mousePos = Vector2.new(mouse.X, mouse.Y)
+                        local targetScreenPos = Vector2.new(screenPoint.X + Settings.Combat.XOffset, screenPoint.Y + Settings.Combat.YOffset)
+                        
+                        local lerpedX = mousePos.X + (targetScreenPos.X - mousePos.X) * (Settings.Combat.XSmoothness / 100)
+                        local lerpedY = mousePos.Y + (targetScreenPos.Y - mousePos.Y) * (Settings.Combat.YSmoothness / 100)
+
+                        mouse.X = lerpedX
+                        mouse.Y = lerpedY
+                    end
+                elseif Settings.Combat.AimType == "Client" and player.Character then
+                    -- This would involve modifying the camera CFrame or character CFrame directly
+                    -- More advanced and potentially detectable
+                end
+            end
+        end
+    end
+
+    -- Orbit Lock
+    if Settings.Combat.OrbitLock.Enable and lockedTarget and lockedTarget.Character and lockedTarget.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = lockedTarget.Character.HumanoidRootPart
+        local angleRad = math.rad(orbitAngle)
+        local radius = 10 -- Distance from target
+        local offsetX = math.cos(angleRad) * radius + Settings.Combat.OrbitLock.XOffset
+        local offsetZ = math.sin(angleRad) * radius + Settings.Combat.OrbitLock.YOffset
+        
+        local newCamPos = hrp.Position + Vector3.new(offsetX, 5, offsetZ) -- 5 units above target
+        
+        if Settings.Combat.OrbitLock.LookAtTarget then
+            camera.CFrame = CFrame.new(newCamPos, hrp.Position)
+        else
+            camera.CFrame = CFrame.new(newCamPos)
+        end
+        orbitAngle = (orbitAngle + 1) % 360 -- Simple rotation
+    end
+end)
+
+-- Hotkey Listeners (for toggles with hotkeys)
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+
+    if Settings.Combat.Enable and Settings.Combat.Hotkey and input.KeyCode == Settings.Combat.Hotkey then
+        setCombatEnable(not getCombatEnable(), Settings.Combat.Hotkey)
+    end
+    if Settings.Combat.SilentAim.Enable and Settings.Combat.SilentAim.Hotkey and input.KeyCode == Settings.Combat.SilentAim.Hotkey then
+        setSilentAimEnable(not getSilentAimEnable(), Settings.Combat.SilentAim.Hotkey)
+    end
+    if Settings.Combat.OrbitLock.Enable and Settings.Combat.OrbitLock.Hotkey and input.KeyCode == Settings.Combat.OrbitLock.Hotkey then
+        setOrbitLockEnable(not getOrbitLockEnable(), Settings.Combat.OrbitLock.Hotkey)
+        if getOrbitLockEnable() then
+            lockedTarget = currentTarget -- Lock onto the current target when enabled
+        else
+            lockedTarget = nil
+        end
+    end
+    if Settings.Misc.Fly.Enable and Settings.Misc.Fly.Hotkey and input.KeyCode == Settings.Misc.Fly.Hotkey then
+        setFlyEnable(not getFlyEnable(), Settings.Misc.Fly.Hotkey)
+    end
+    if Settings.Misc.Speed.Enable and Settings.Misc.Speed.Hotkey and input.KeyCode == Settings.Misc.Speed.Hotkey then
+        setSpeedEnable(not getSpeedEnable(), Settings.Misc.Speed.Hotkey)
+    end
+    if Settings.Misc.AntiAim.Enable and Settings.Misc.AntiAim.Hotkey and input.KeyCode == Settings.Misc.AntiAim.Hotkey then
+        setAntiAimEnable(not getAntiAimEnable(), Settings.Misc.AntiAim.Hotkey)
+    end
+    if Settings.Misc.Fun.ClickTeleport and Settings.Misc.Fun.ClickTeleportHotkey and input.KeyCode == Settings.Misc.Fun.ClickTeleportHotkey then
+        local ray = camera:ScreenPointToRay(mouse.X, mouse.Y)
+        local hit, position = Workspace:FindPartOnRay(Ray.new(ray.Origin, ray.Direction * 1000))
+        if position and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(position + Vector3.new(0,5,0)) -- Teleport slightly above ground
+        end
+    end
+end)
+
+-- Final thoughts
+warn("EnhancedPupyyware GUI Loaded! Press " .. Settings.Settings.UI.OpenHotkey.Name .. " to open/close.")
+print("Theme:", Theme)
+print("Settings:", Settings)
