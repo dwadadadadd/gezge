@@ -809,7 +809,7 @@ do
 			Button.BackgroundColor3 = Color3.new(0.0431,0.0431,0.0431)
 			Button.BorderColor3 = Color3.new(0.1098,0.1098,0.1098)
 			Button.ZIndex = 53
-			Button.Visible = false
+			Button.Visible = true -- Changed to always be visible
 			--
 			TopLine.Name = "TopLine"
 			TopLine.Position = UDim2.new(0,3,0,0)
@@ -818,6 +818,7 @@ do
 			TopLine.BorderSizePixel = 0
 			TopLine.BorderColor3 = Color3.new(0,0,0)
 			TopLine.ZIndex = 53
+			TopLine.Visible = false -- Initially hidden, only visible when active
 			--
 			Line.Name = "Line"
 			Line.Position = UDim2.new(0,0,1,0)
@@ -835,6 +836,7 @@ do
 			Left.BorderColor3 = Color3.new(0,0,0)
 			Left.Rotation = -45
 			Left.ZIndex = 53
+			Left.Visible = false -- Initially hidden
 			--
 			RIght.Name = "RIght"
 			RIght.Position = UDim2.new(1,-4,0,2)
@@ -844,6 +846,7 @@ do
 			RIght.BorderColor3 = Color3.new(0,0,0)
 			RIght.Rotation = 45
 			RIght.ZIndex = 53
+			RIght.Visible = false -- Initially hidden
 			--
 			Black.Name = "Black"
 			Black.Position = UDim2.new(0,-5,0,-2)
@@ -853,6 +856,7 @@ do
 			Black.BorderColor3 = Color3.new(0,0,0)
 			Black.Rotation = -45
 			Black.ZIndex = 55
+			Black.Visible = false -- Initially hidden
 			--
 			Black2.Name = "Black2"
 			Black2.Position = UDim2.new(1,-2,0,-2)
@@ -862,6 +866,7 @@ do
 			Black2.BorderColor3 = Color3.new(0,0,0)
 			Black2.Rotation = 45
 			Black2.ZIndex = 55
+			Black2.Visible = false -- Initially hidden
 			--
 			Title.Name = "Title"
 			Title.Position = UDim2.new(0,0,0,2)
@@ -905,8 +910,6 @@ do
 				
 				-- Smooth fade for PageSections and SectionHolder
 				local targetTransparency = bool and 0 or 1
-				local targetPositionPageSections = bool and UDim2.new(0,8,0,10) or UDim2.new(0,8,0,10) -- No position change for fade
-				local targetPositionSectionHolder = bool and UDim2.new(0,133,0,13) or UDim2.new(0,133,0,13) -- No position change for fade
 
 				if bool then
 					PageSections.Visible = true
@@ -924,7 +927,13 @@ do
 					end)
 				end
 
-				Button.Visible = Page.Open
+				-- Update visual state of the tab button
+				TopLine.Visible = Page.Open
+				Left.Visible = Page.Open
+				RIght.Visible = Page.Open
+				Black.Visible = Page.Open
+				Black2.Visible = Page.Open
+
 				if Page.Open then
 					table.insert(Library.ThemeObjects, Title)
 					Title.TextColor3 = Library.Accent
@@ -1558,11 +1567,11 @@ do
 				end
 				local function refresh()
 					task.wait(0.001)
-					Mode.Position = UDim2.new(0,TextLabel.TextBounds.X + 20,0,0)
+					Mode.Position = UDim2.new(0,Title.TextBounds.X + 20,0,-1)
 				end
 				-- // Return
 				refresh()
-				KeybindsList[Keybind.Flag] = {Name = Keybind.Name, Value = Value, Mode = Mode} -- Store reference for KeybindListDisplay
+				KeybindsList[Keybind.Flag] = {Name = Keybind.Name, Key = Key, Mode = Keybind.Mode, Value = Value, ModeText = Mode} -- Store reference for KeybindListDisplay
 				return Keybind
 			end
 
