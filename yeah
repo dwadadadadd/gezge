@@ -8,7 +8,7 @@ do
 			main = "test";
 			configs = "test/Configs";
 		};
-		Accent = Color3.fromRGB(76, 162, 252);
+		Accent = Color3.fromRGB(255, 105, 180); -- Changed default accent to pink (Hot Pink)
 		Pages = {};
 		Sections = {};
 		Flags = {};
@@ -78,6 +78,7 @@ do
 	local Dropdowns = {}; -- Ignore
 	local Pickers = {}; -- Ignore
 	local VisValues = {}; -- Ignore
+	local KeybindsList = {}; -- Stores references to keybind elements for the list display
 
 	-- // Extension
 	Library.__index = Library
@@ -85,6 +86,7 @@ do
 	Library.Sections.__index = Library.Sections
 	local LocalPlayer = game:GetService('Players').LocalPlayer;
 	local Mouse = LocalPlayer:GetMouse();
+	local TweenService = game:GetService("TweenService")
 
 	-- // Misc Functions
 	do
@@ -261,7 +263,7 @@ do
 					if v:IsA("Frame") or v:IsA("TextButton") then
 						if v.BackgroundTransparency ~= 1 then
 							task.spawn(function()
-								local t = game:GetService("TweenService"):Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Linear, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {BackgroundTransparency = bool and 0 or 0.95})
+								local t = TweenService:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Linear, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {BackgroundTransparency = bool and 0 or 0.95})
 								t.Completed:Connect(function()
 									if bool == false then
 										Library.Holder.Visible = false
@@ -273,27 +275,27 @@ do
 					elseif v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
 						if v.TextTransparency ~= 1 and v.BackgroundTransparency == 1 then
 							task.spawn(function()
-								game:GetService("TweenService"):Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Linear, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {TextTransparency = bool and 0 or 0.95}):Play()
+								TweenService:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Linear, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {TextTransparency = bool and 0 or 0.95}):Play()
 							end)
 						end
 					elseif v:IsA("UIStroke") then
 						task.spawn(function()
-							game:GetService("TweenService"):Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Linear, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {Transparency = bool and 0 or 0.95}):Play()
+							TweenService:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Linear, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {Transparency = bool and 0 or 0.95}):Play()
 						end)
 					elseif v:IsA("ImageButton") then
 						task.spawn(function()
-							game:GetService("TweenService"):Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Linear, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {ImageTransparency = bool and 0 or 0.95, BackgroundTransparency = bool and 0 or 0.95}):Play()
+							TweenService:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Linear, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {ImageTransparency = bool and 0 or 0.95, BackgroundTransparency = bool and 0 or 0.95}):Play()
 						end)
 					end
 				end
 				task.spawn(function()
-					game:GetService("TweenService"):Create(Library.PageHolder, TweenInfo.new(0.25, Enum.EasingStyle.Quad, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {Position = bool and UDim2.new(0,60,0,0) or UDim2.new(0,0,0,0)}):Play()
+					TweenService:Create(Library.PageHolder, TweenInfo.new(0.25, Enum.EasingStyle.Quad, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {Position = bool and UDim2.new(0,60,0,0) or UDim2.new(0,0,0,0)}):Play()
 					--
 					if bool then
 						task.wait(0.05)
 					end
-					game:GetService("TweenService"):Create(Library.Gradient, TweenInfo.new(0.25, Enum.EasingStyle.Quad, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {Position = bool and UDim2.new(0.5,0,0,2) or UDim2.new(1,0,0,2)}):Play()
-					game:GetService("TweenService"):Create(Library.Gradient, TweenInfo.new(0.25, Enum.EasingStyle.Quad, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {Size = bool and UDim2.new(0.5,0,0,1) or UDim2.new(0,0,0,1)}):Play()
+					TweenService:Create(Library.Gradient, TweenInfo.new(0.25, Enum.EasingStyle.Quad, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {Position = bool and UDim2.new(0.5,0,0,2) or UDim2.new(1,0,0,2)}):Play()
+					TweenService:Create(Library.Gradient, TweenInfo.new(0.25, Enum.EasingStyle.Quad, bool and Enum.EasingDirection.Out or Enum.EasingDirection.In), {Size = bool and UDim2.new(0.5,0,0,1) or UDim2.new(0,0,0,1)}):Play()
 				end)
 			end
 		end;
@@ -567,6 +569,7 @@ do
 			local corner2 = Instance.new('UICorner', Inline)
 			local stroke1 = Instance.new('UIStroke', Main)
 			local stroke2 = Instance.new('UIStroke', Inline)
+			local Watermark = Instance.new('TextLabel', Main) -- Watermark instance
 			--
 			do -- Inserts
 				table.insert(Library.Instances, Main)
@@ -578,9 +581,11 @@ do
 				table.insert(Library.Instances, Title)
 				table.insert(Library.Instances, Sections)
 				table.insert(Library.Instances, version)
+				table.insert(Library.Instances, Watermark) -- Insert watermark
 				--
 				table.insert(Library.ThemeObjects, Title)
 				table.insert(Library.ThemeObjects, version)
+				table.insert(Library.ThemeObjects, Watermark) -- Watermark theme object
 			end
 			--
 			ScreenGui.DisplayOrder = 2
@@ -697,6 +702,21 @@ do
 			--
 			corner1.CornerRadius = UDim.new(0,2)
 			corner2.CornerRadius = UDim.new(0,2)
+			--
+			Watermark.Name = "Watermark"
+			Watermark.Position = UDim2.new(1, -10, 1, -10)
+			Watermark.Size = UDim2.new(0, 100, 0, 20)
+			Watermark.AnchorPoint = Vector2.new(1, 1)
+			Watermark.BackgroundColor3 = Color3.new(1,1,1)
+			Watermark.BackgroundTransparency = 1
+			Watermark.Text = "Aleph Null"
+			Watermark.TextColor3 = Library.Accent
+			Watermark.TextTransparency = 0.8
+			Watermark.FontFace = Library.UIFont
+			Watermark.TextSize = 10
+			Watermark.ZIndex = 100
+			Watermark.TextXAlignment = Enum.TextXAlignment.Right
+			Watermark.RichText = true
 
 			-- // Dragging
 			Library:Connection(Top.MouseButton1Down, function()
@@ -753,6 +773,7 @@ do
 			local SectionHolder = Instance.new('Frame', Page.Window.Elements.Middle)
 			--
 			do -- Inserts
+				table.insert(Library.Instances, Holder) -- Holder needs to be in Instances for tweening
 				table.insert(Library.Instances, Button)
 				table.insert(Library.Instances, TopLine)
 				table.insert(Library.Instances, Line)
@@ -761,6 +782,8 @@ do
 				table.insert(Library.Instances, RIght)
 				table.insert(Library.Instances, Black)
 				table.insert(Library.Instances, Black2)
+				table.insert(Library.Instances, PageSections) -- PageSections needs to be in Instances for tweening
+				table.insert(Library.Instances, SectionHolder) -- SectionHolder needs to be in Instances for tweening
 				--
 				table.insert(Library.ThemeObjects, TopLine)
 				table.insert(Library.ThemeObjects, Left)
@@ -879,7 +902,28 @@ do
 			-- // Connections
 			function Page:Turn(bool)
 				Page.Open = bool
-				PageSections.Visible = Page.Open
+				
+				-- Smooth fade for PageSections and SectionHolder
+				local targetTransparency = bool and 0 or 1
+				local targetPositionPageSections = bool and UDim2.new(0,8,0,10) or UDim2.new(0,8,0,10) -- No position change for fade
+				local targetPositionSectionHolder = bool and UDim2.new(0,133,0,13) or UDim2.new(0,133,0,13) -- No position change for fade
+
+				if bool then
+					PageSections.Visible = true
+					SectionHolder.Visible = true
+				end
+
+				TweenService:Create(PageSections, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = targetTransparency, TextTransparency = targetTransparency}):Play()
+				TweenService:Create(SectionHolder, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = targetTransparency, TextTransparency = targetTransparency}):Play()
+				
+				-- Set visibility after tween if closing
+				if not bool then
+					task.delay(0.2, function()
+						PageSections.Visible = false
+						SectionHolder.Visible = false
+					end)
+				end
+
 				Button.Visible = Page.Open
 				if Page.Open then
 					table.insert(Library.ThemeObjects, Title)
@@ -888,7 +932,6 @@ do
 					table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Title))
 					Title.TextColor3 = Color3.fromRGB(78,78,78)
 				end
-				SectionHolder.Visible = Page.Open
 			end;
 
 			Holder.MouseButton1Click:Connect(function()
@@ -907,7 +950,7 @@ do
 			end;
 
 			local function refresh()
-				wait(0.001)
+				task.wait(0.001)
 				Holder.Size = UDim2.new(0,Title.TextBounds.X + 16, 1, 0)
 			end
 
@@ -965,6 +1008,9 @@ do
 				table.insert(Library.Instances, Bar2)
 				table.insert(Library.Instances, GradientLine2)
 				table.insert(Library.Instances, RightTitle)
+				table.insert(Library.Instances, NewSection) -- NewSection needs to be in Instances for tweening
+				table.insert(Library.Instances, LeftContent) -- LeftContent needs to be in Instances for tweening
+				table.insert(Library.Instances, RightConnect) -- RightConnect needs to be in Instances for tweening
 				--
 				table.insert(Library.ThemeObjects, Accent)
 			end
@@ -1154,7 +1200,19 @@ do
 			-- // Connections
 			function Section:Turn(bool)
 				Section.Open = bool
-				NewSection.Visible = Section.Open
+				
+				-- Smooth fade for NewSection
+				local targetTransparency = bool and 0 or 1
+				if bool then
+					NewSection.Visible = true
+				end
+				TweenService:Create(NewSection, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = targetTransparency, TextTransparency = targetTransparency}):Play()
+				if not bool then
+					task.delay(0.2, function()
+						NewSection.Visible = false
+					end)
+				end
+
 				if Section.Open then
 					table.insert(Library.ThemeObjects, Title)
 					Title.TextColor3 = Library.Accent
@@ -1302,6 +1360,7 @@ do
 					),
 					Binding = nil,
 					Connection = nil,
+					Name = Options.Name or "Keybind" -- Added Name for KeybindListDisplay
 				}
 				local Key
 				local State = false
@@ -1380,6 +1439,10 @@ do
 						end
 
 						Library.Flags[Keybind.Flag .. "_KEY"] = newkey
+						-- Update KeybindListDisplay
+						if KeybindsList[Keybind.Flag] then
+							KeybindsList[Keybind.Flag].Value.Text = "[" .. (Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")) .. "]"
+						end
 					elseif table.find({ "Always", "Toggle", "Hold" }, newkey) then
 						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
 						Keybind.Mode = newkey
@@ -1392,6 +1455,10 @@ do
 							end
 							Keybind.Callback(true)
 						end
+						-- Update KeybindListDisplay
+						if KeybindsList[Keybind.Flag] then
+							KeybindsList[Keybind.Flag].Mode.Text = Keybind.Mode == "Hold" and "[H]" or Keybind.Mode == "Toggle" and "[T]" or "[A]"
+						end
 					else
 						State = newkey
 						if Keybind.Flag then
@@ -1403,7 +1470,7 @@ do
 				--
 				set(Keybind.State)
 				set(Keybind.Mode)
-				KeyHolder.MouseButton1Click:Connect(function()
+				Holder.MouseButton1Click:Connect(function()
 					if not Keybind.Binding then
 
 						Value.Text = "[-]"
@@ -1490,11 +1557,12 @@ do
 					set(key)
 				end
 				local function refresh()
-					wait(0.001)
+					task.wait(0.001)
 					Mode.Position = UDim2.new(0,TextLabel.TextBounds.X + 20,0,0)
 				end
 				-- // Return
 				refresh()
+				KeybindsList[Keybind.Flag] = {Name = Keybind.Name, Value = Value, Mode = Mode} -- Store reference for KeybindListDisplay
 				return Keybind
 			end
 
@@ -1750,7 +1818,7 @@ do
 					end
 				end
 
-				Value.Text = TextValue:gsub("%[value%]", string.format("%.14g", value))
+				Value.Text = TextValue:gsub("%[value%]", string.format("%." .. Slider.Decimals .. "f", value)) -- Format with decimals
 				Val = value
 
 				local sizeX = ((value - Slider.Min) / (Slider.Max - Slider.Min))
@@ -1798,10 +1866,10 @@ do
 				end
 			end)
 			Library:Connection(plus.MouseButton1Click, function()
-				Set(Val + 1)
+				Set(Val + Slider.Decimals) -- Increment by decimal step
 			end)
 			Library:Connection(minus.MouseButton1Click, function()
-				Set(Val - 1)
+				Set(Val - Slider.Decimals) -- Decrement by decimal step
 			end)
 			--
 			function Slider:Set(Value)
@@ -2512,6 +2580,10 @@ do
 					end
 
 					Library.Flags[Keybind.Flag .. "_KEY"] = newkey
+					-- Update KeybindsListDisplay
+					if KeybindsList[Keybind.Flag] then
+						KeybindsList[Keybind.Flag].Value.Text = "[" .. (Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")) .. "]"
+					end
 				elseif table.find({ "Always", "Toggle", "Hold" }, newkey) then
 					Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
 					Keybind.Mode = newkey
@@ -2523,6 +2595,10 @@ do
 							Library.Flags[Keybind.Flag] = State
 						end
 						Keybind.Callback(true)
+					end
+					-- Update KeybindsListDisplay
+					if KeybindsList[Keybind.Flag] then
+						KeybindsList[Keybind.Flag].Mode.Text = Keybind.Mode == "Hold" and "[H]" or Keybind.Mode == "Toggle" and "[T]" or "[A]"
 					end
 				else
 					State = newkey
@@ -2622,11 +2698,12 @@ do
 				set(key)
 			end
 			local function refresh()
-				wait(0.001)
+				task.wait(0.001)
 				Mode.Position = UDim2.new(0,Title.TextBounds.X + 20,0,-1)
 			end
 			-- // Return
 			refresh()
+			KeybindsList[Keybind.Flag] = {Name = Keybind.Name, Key = Key, Mode = Keybind.Mode, Value = Value, ModeText = Mode} -- Store reference for KeybindListDisplay
 			return Keybind
 		end
 		--
@@ -2902,7 +2979,131 @@ do
 			-- // Returning
 			return Colorpicker
 		end
+
+		-- New element: KeybindListDisplay
+		function Sections:KeybindListDisplay(Options)
+			local Properties = Options or {}
+			local KeybindList = {
+				Section = self,
+				Name = Properties.Title or Properties.Name or Properties.title or "Keybinds",
+				-- No state or callback, this is purely for display
+			}
+
+			-- // Instances
+			local Holder = Instance.new('Frame', Options.Side == "Left" and KeybindList.Section.Elements.Left or Options.Side == "Right" and KeybindList.Section.Elements.Right or KeybindList.Section.Elements.Left)
+			local Title = Instance.new('TextLabel', Holder)
+			local ListFrame = Instance.new('Frame', Holder)
+			local UIListLayout = Instance.new('UIListLayout', ListFrame)
+			--
+			do -- Inserts
+				table.insert(Library.Instances, Title)
+				table.insert(Library.Instances, ListFrame)
+			end
+			--
+			Holder.Name = "KeybindListDisplay"
+			Holder.Size = UDim2.new(1,0,0,100) -- Adjustable height
+			Holder.BackgroundColor3 = Color3.new(1,1,1)
+			Holder.BackgroundTransparency = 1
+			Holder.BorderSizePixel = 0
+			Holder.BorderColor3 = Color3.new(0,0,0)
+			--
+			Title.Name = "Title"
+			Title.Position = UDim2.new(0,15,0,0)
+			Title.Size = UDim2.new(1,-30,0,10)
+			Title.BackgroundColor3 = Color3.new(1,1,1)
+			Title.BackgroundTransparency = 1
+			Title.TextColor3 = Color3.new(0.3059,0.3059,0.3059)
+			Title.FontFace = Library.UIFont
+			Title.TextSize = Library.FontSize
+			Title.ZIndex = 105
+			Title.TextXAlignment = Enum.TextXAlignment.Left
+			Title.Text = KeybindList.Name
+			--
+			ListFrame.Name = "ListFrame"
+			ListFrame.Position = UDim2.new(0,15,0,15)
+			ListFrame.Size = UDim2.new(1,-30,1,-15)
+			ListFrame.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
+			ListFrame.BorderColor3 = Color3.new(0,0,0)
+			ListFrame.ClipsDescendants = true -- Important for scrolling
+			--
+			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,2)
+			UIListLayout.FillDirection = Enum.FillDirection.Vertical
+			UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+
+			-- Function to update the keybind list display
+			local function updateKeybindList()
+				-- Clear existing entries
+				for _, child in ipairs(ListFrame:GetChildren()) do
+					if child:IsA("Frame") then -- Only destroy keybind entries
+						child:Destroy()
+					end
+				end
+
+				for flag, keybindData in pairs(KeybindsList) do
+					local EntryHolder = Instance.new('Frame', ListFrame)
+					EntryHolder.Name = "KeybindEntry"
+					EntryHolder.Size = UDim2.new(1,0,0,12)
+					EntryHolder.BackgroundColor3 = Color3.new(1,1,1)
+					EntryHolder.BackgroundTransparency = 1
+					EntryHolder.BorderSizePixel = 0
+
+					local KeybindName = Instance.new('TextLabel', EntryHolder)
+					KeybindName.Name = "KeybindName"
+					KeybindName.Position = UDim2.new(0,2,0,0)
+					KeybindName.Size = UDim2.new(0.6,0,1,0)
+					KeybindName.BackgroundColor3 = Color3.new(1,1,1)
+					KeybindName.BackgroundTransparency = 1
+					KeybindName.TextColor3 = Color3.new(0.6,0.6,0.6)
+					KeybindName.FontFace = Library.UIFont
+					KeybindName.TextSize = Library.FontSize
+					KeybindName.TextXAlignment = Enum.TextXAlignment.Left
+					KeybindName.Text = keybindData.Name
+
+					local KeybindValue = Instance.new('TextLabel', EntryHolder)
+					KeybindValue.Name = "KeybindValue"
+					KeybindValue.Position = UDim2.new(0.6,0,0,0)
+					KeybindValue.Size = UDim2.new(0.2,0,1,0)
+					KeybindValue.BackgroundColor3 = Color3.new(1,1,1)
+					KeybindValue.BackgroundTransparency = 1
+					KeybindValue.TextColor3 = Color3.new(0.6,0.6,0.6)
+					KeybindValue.FontFace = Library.UIFont
+					KeybindValue.TextSize = Library.FontSize
+					KeybindValue.TextXAlignment = Enum.TextXAlignment.Center
+					KeybindValue.Text = keybindData.Value.Text -- Use the actual text from the keybind's Value label
+
+					local KeybindMode = Instance.new('TextLabel', EntryHolder)
+					KeybindMode.Name = "KeybindMode"
+					KeybindMode.Position = UDim2.new(0.8,0,0,0)
+					KeybindMode.Size = UDim2.new(0.2,0,1,0)
+					KeybindMode.BackgroundColor3 = Color3.new(1,1,1)
+					KeybindMode.BackgroundTransparency = 1
+					KeybindMode.TextColor3 = Color3.new(0.6,0.6,0.6)
+					KeybindMode.FontFace = Library.UIFont
+					KeybindMode.TextSize = Library.FontSize
+					KeybindMode.TextXAlignment = Enum.TextXAlignment.Right
+					KeybindMode.Text = keybindData.ModeText.Text -- Use the actual text from the keybind's Mode label
+				end
+			end
+
+			-- Connect to a custom event or periodically update
+			-- For simplicity, we'll just call it once initially and you can manually trigger it if needed
+			-- A more robust solution would involve a custom event from the Keybind element itself.
+			task.spawn(function()
+				task.wait(0.5) -- Give elements time to initialize
+				updateKeybindList()
+			end)
+
+			-- Provide a method to refresh the list from outside
+			function KeybindList:Refresh()
+				updateKeybindList()
+			end
+
+			-- // Returning
+			return KeybindList
+		end
 	end
 end
 
 return Library
+
